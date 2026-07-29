@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dispatching Parallel Agents"
+  short_description: "Isolate or parallelize independent bounded work."
+  default_prompt: "Use subagents only for independent parallel work or to isolate large disposable context, and return compact evidence-based results."

@@ -1,0 +1,18 @@
+{
+  "name": "superpowers-lite",
+  "description": "Lightweight development skills with selective activation.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Dominic Kim",
+    "email": "kimduumin@gmail.com"
+  },
+  "homepage": "https://github.com/doominkim/superpowers-lite",
+  "repository": "https://github.com/doominkim/superpowers-lite",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "development",
+    "workflow",
+    "lightweight"
+  ]
+}

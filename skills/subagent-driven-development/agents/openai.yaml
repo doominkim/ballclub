@@ -1,0 +1,4 @@
+interface:
+  display_name: "Subagent Driven Implementation"
+  short_description: "Delegate implementation tasks to focused workers."
+  default_prompt: "Delegate approved implementation tasks to focused implementers without adding reviewer roles."

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Using Superpowers Lite"
+  short_description: "Check potentially relevant skills before acting."
+  default_prompt: "Use $using-superpowers-lite to invoke any potentially relevant skills without applying unrelated workflows."
+policy:
+  allow_implicit_invocation: true

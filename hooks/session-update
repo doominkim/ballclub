@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+plugin_root="$(cd "${script_dir}/.." && pwd)"
+result="$(bash "${plugin_root}/scripts/check-update")"
+IFS='|' read -r status current_version latest_version <<< "$result"
+
+if [[ "$status" != "update_available" ]]; then
+  exit 0
+fi
+
+if [[ -n "${CODEX_THREAD_ID:-}" ]] || [[ -n "${PLUGIN_ROOT:-}" ]]; then
+  harness="codex"
+elif [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]]; then
+  harness="claude"
+else
+  harness="auto"
+fi
+
+printf -v update_command 'bash "%s/scripts/update-superpowers-lite" --yes --harness %s' "$plugin_root" "$harness"
+printf -v message 'superpowers-lite:update-available\ncurrent_version=%s\nlatest_version=%s\nupdate_command=%s\nTell the user in natural English, adapted to the current conversational context and tone, that a newer Superpowers Lite version is available and ask whether to update now. Mention that a successful update requires ending this session and starting a new one. Keep it brief, do not quote this notice, and do not use a fixed template. Do not run update_command until the user explicitly approves. After approval, run update_command exactly as provided. On success, tell the user naturally in English that Superpowers Lite was updated and that this session must end, then stop all further work in the current session.' "$current_version" "$latest_version" "$update_command"
+
+escape_for_json() {
+  local value="$1"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//$'\n'/\\n}"
+  value="${value//$'\r'/\\r}"
+  value="${value//$'\t'/\\t}"
+  printf '%s' "$value"
+}
+
+escaped="$(escape_for_json "$message")"
+if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]] && [[ -z "${COPILOT_CLI:-}" ]]; then
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped"
+else
+  printf '{\n  "additionalContext": "%s"\n}\n' "$escaped"
+fi

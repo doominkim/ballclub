@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing Skills"
+  short_description: "Create concise and discoverable skills."
+  default_prompt: "Create or update this skill with precise triggers, minimal instructions, and realistic validation."

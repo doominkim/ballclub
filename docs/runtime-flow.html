@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Superpowers Lite 동작 구조</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211b;
+      --muted: #647168;
+      --paper: #f5f2e9;
+      --surface: #fffdf7;
+      --line: #d8d5ca;
+      --green: #146c43;
+      --green-soft: #dceee3;
+      --amber: #9a5a08;
+      --amber-soft: #fae9c8;
+      --red: #9c2f2f;
+      --red-soft: #f7dddd;
+      --blue: #1d5f8c;
+      --blue-soft: #dceaf3;
+      --neutral-soft: #e8e9e5;
+      --shadow: 0 18px 45px rgba(39, 48, 41, 0.08);
+      --radius: 15px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(20, 108, 67, 0.09), transparent 31rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a { color: inherit; }
+
+    .page {
+      width: min(1380px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 44px 0 80px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 26px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 850;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 { word-break: keep-all; }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.3rem, 5vw, 4.4rem);
+      font-weight: 500;
+      letter-spacing: -0.045em;
+      line-height: 1;
+    }
+
+    .intro {
+      max-width: 820px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      padding: 0 15px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .stat {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 247, 0.78);
+    }
+
+    .stat strong { display: block; font-size: 1.55rem; line-height: 1.1; }
+    .stat span { color: var(--muted); font-size: 0.84rem; }
+
+    .panel {
+      margin-top: 18px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: baseline;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.55rem;
+      font-weight: 500;
+    }
+
+    .panel-head p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(120px, 1fr));
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .step {
+      position: relative;
+      min-height: 154px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffefa;
+    }
+
+    .step:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -19px;
+      content: "→";
+      color: var(--green);
+      font-size: 1.2rem;
+      font-weight: 850;
+      transform: translateY(-50%);
+    }
+
+    .step small {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--green);
+      font-size: 0.7rem;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .step h3 { margin: 0 0 8px; font-size: 0.98rem; }
+    .step p { margin: 0; color: var(--muted); font-size: 0.82rem; }
+    .step.highlight { border-color: #a9cbb7; background: var(--green-soft); }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .lane {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffefa;
+    }
+
+    .lane h3 { margin: 0 0 10px; font-size: 1rem; }
+    .lane ol, .lane ul { margin: 0; padding-left: 20px; }
+    .lane li + li { margin-top: 7px; }
+    .lane.update { border-color: #b7cad8; background: var(--blue-soft); }
+
+    .route-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .route {
+      display: grid;
+      gap: 9px;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffefa;
+    }
+
+    .route h3 { margin: 0; font-size: 0.98rem; }
+    .route p { margin: 0; color: var(--muted); font-size: 0.84rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .chip {
+      display: inline-flex;
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .chip.optional { background: var(--amber-soft); color: var(--amber); }
+    .chip.gate { background: var(--blue-soft); color: var(--blue); }
+
+    .arrow-line {
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 880px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      background: #f0eee5;
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    td:first-child { font-weight: 800; }
+
+    .status {
+      display: inline-flex;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .fixed { color: var(--green); background: var(--green-soft); }
+    .kept { color: var(--blue); background: var(--blue-soft); }
+    .removed { color: var(--red); background: var(--red-soft); }
+    .candidate { color: var(--amber); background: var(--amber-soft); }
+
+    .catalog {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .skill-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffefa;
+    }
+
+    .skill-card h3 { margin: 0 0 8px; font-size: 0.92rem; }
+    .skill-card p { margin: 0; color: var(--muted); font-size: 0.81rem; }
+    .skill-card .trigger { margin-top: 10px; color: var(--ink); font-size: 0.78rem; }
+    .skill-card .trigger strong { color: var(--green); }
+
+    .principle {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 15px;
+      align-items: start;
+      margin-top: 18px;
+      padding: 17px;
+      border-left: 4px solid var(--green);
+      background: var(--green-soft);
+    }
+
+    .principle strong { font-size: 1.15rem; }
+    .principle p { margin: 0; }
+
+    code {
+      padding: 0.12em 0.35em;
+      border-radius: 5px;
+      background: var(--neutral-soft);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.88em;
+    }
+
+    .footer {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    @media (max-width: 1120px) {
+      .flow { grid-template-columns: repeat(4, 1fr); }
+      .step:not(:last-child)::after { display: none; }
+      .catalog { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 780px) {
+      .page { width: min(100% - 20px, 1380px); padding-top: 28px; }
+      header { grid-template-columns: 1fr; }
+      .stats, .split, .route-grid { grid-template-columns: 1fr 1fr; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .panel { padding: 18px; }
+      .panel-head { display: block; }
+      .panel-head p { margin-top: 6px; }
+    }
+
+    @media (max-width: 520px) {
+      .stats, .split, .route-grid, .flow, .catalog { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <p class="eyebrow">Runtime architecture map</p>
+        <h1>Superpowers Lite는 이렇게 움직여</h1>
+        <p class="intro">
+          설치부터 세션 bootstrap, 요청별 skill 선택, 구현, 검증, 브랜치 종료까지의
+          실제 흐름이야. 업데이트 관리는 사용자 작업 skill과 분리된 별도 경로로 동작해.
+        </p>
+      </div>
+      <a class="header-link" href="./concept-review.html">개념 결정표 보기 →</a>
+    </header>
+
+    <section class="stats" aria-label="현재 구성 요약">
+      <div class="stat"><strong>2</strong><span>지원 하네스 · Codex, Claude</span></div>
+      <div class="stat"><strong>8</strong><span>독립적으로 호출되는 skill</span></div>
+      <div class="stat"><strong>2</strong><span>SessionStart 작업</span></div>
+      <div class="stat"><strong>0</strong><span>자동 skill 연쇄</span></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>메인 런타임 흐름</h2>
+        <p>화살표는 실행 순서고, skill은 description이 독립적으로 맞을 때만 로드돼.</p>
+      </div>
+      <div class="flow">
+        <article class="step">
+          <small>01 · 설치</small>
+          <h3>Plugin manager</h3>
+          <p>Codex 또는 Claude가 marketplace에서 플러그인을 설치해.</p>
+        </article>
+        <article class="step">
+          <small>02 · 발견</small>
+          <h3>Manifest + skills/</h3>
+          <p>Manifest가 플러그인을 식별하고 skill description을 노출해.</p>
+        </article>
+        <article class="step highlight">
+          <small>03 · 세션 시작</small>
+          <h3>Minimal bootstrap</h3>
+          <p><code>using-superpowers-lite</code>를 활성 상태로 문맥에 한 번 넣어.</p>
+        </article>
+        <article class="step">
+          <small>04 · 요청 수신</small>
+          <h3>사용자 + 저장소 규칙</h3>
+          <p>직접 지시와 로컬 규칙을 먼저 읽고 실제 요청을 해석해.</p>
+        </article>
+        <article class="step highlight">
+          <small>05 · 라우팅</small>
+          <h3>1% applicability</h3>
+          <p>관련 가능성이 있는 skill만 현재 내용으로 로드해.</p>
+        </article>
+        <article class="step">
+          <small>06 · 실행</small>
+          <h3>선택된 workflow</h3>
+          <p>선택된 skill의 경계 안에서 작업하고 다른 skill을 자동 호출하지 않아.</p>
+        </article>
+        <article class="step">
+          <small>07 · 완료 직전</small>
+          <h3>Fresh evidence</h3>
+          <p>완료를 주장할 때 검증 skill이 독립적으로 적용되고 최신 증거를 확인해.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>SessionStart에서 갈라지는 두 경로</h2>
+        <p>Bootstrap과 업데이트는 같은 이벤트를 쓰지만 책임과 출력이 분리돼.</p>
+      </div>
+      <div class="split">
+        <article class="lane">
+          <h3>작업 경로 · 매 세션 문맥 준비</h3>
+          <ol>
+            <li><code>startup</code>, <code>clear</code>, <code>compact</code>에서만 라우터 skill을 읽어.</li>
+            <li><code>superpowers-lite:bootstrap</code> marker와 최소 규칙을 주입해.</li>
+            <li><code>resume</code>은 기존 문맥을 재사용하므로 bootstrap을 중복 주입하지 않아.</li>
+          </ol>
+        </article>
+        <article class="lane update">
+          <h3>관리 경로 · 업데이트 확인</h3>
+          <ol>
+            <li>새로운 <code>startup</code>에서만 하루 한 번 원격 버전을 확인해.</li>
+            <li>새 버전이 있을 때만 자연스러운 영어로 업데이트 여부를 물어.</li>
+            <li>명시적 승인 후 네이티브 updater를 실행하고 현재 세션을 종료해.</li>
+          </ol>
+        </article>
+      </div>
+      <div class="principle">
+        <strong>분리 원칙</strong>
+        <p>업데이트는 플러그인 생명주기라서 skill 목록에 들어가지 않아. Hook은 질문과 승인 경계만 전달하고, 실제 변경은 deterministic script가 수행해.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>요청 유형별 실제 skill 조합</h2>
+        <p>아래 조합은 자동 체인이 아니라 각 시점에 description이 다시 독립적으로 맞는 결과야.</p>
+      </div>
+      <div class="route-grid">
+        <article class="route">
+          <h3>명확한 단일 변경</h3>
+          <div class="chips"><span class="chip">using-superpowers-lite</span><span class="chip gate">verification-before-completion</span></div>
+          <p>추가 방법론 없이 바로 구현하고, 완료를 말하기 직전에 관련 증거만 확인해.</p>
+          <span class="arrow-line">요청 → 구현 → 검증 → 보고</span>
+        </article>
+        <article class="route">
+          <h3>중요한 모호성이 있는 기능</h3>
+          <div class="chips"><span class="chip">brainstorming</span><span class="chip gate">verification-before-completion</span></div>
+          <p>범위를 바꾸는 결정만 질문하고 승인된 설계를 원래 작업에 돌려줘. 계획 skill은 자동으로 붙지 않아.</p>
+          <span class="arrow-line">모호성 → 선택지 → 승인 → 구현 → 검증</span>
+        </article>
+        <article class="route">
+          <h3>버그·실패·예상 밖 동작</h3>
+          <div class="chips"><span class="chip">systematic-debugging</span><span class="chip gate">verification-before-completion</span></div>
+          <p>재현과 근본 원인을 먼저 찾고 최소 수정 후 검증해. TDD skill은 자동 호출하지 않아.</p>
+          <span class="arrow-line">재현 → 원인 → 가설 → 수정 → 증거</span>
+        </article>
+        <article class="route">
+          <h3>여러 개의 명확한 구현 작업</h3>
+          <div class="chips"><span class="chip">subagent-driven-development</span><span class="chip optional">dispatching · 명시적 병렬 요청 시</span><span class="chip gate">verification</span></div>
+          <p>Implementer에게 파일 책임을 나눠주고 주 에이전트가 통합해. Reviewer 역할은 만들지 않아.</p>
+          <span class="arrow-line">작업 분리 → 구현자 → 통합 → 결합 검증</span>
+        </article>
+        <article class="route">
+          <h3>독립적인 조사·분석·검증 또는 문맥 격리</h3>
+          <div class="chips"><span class="chip">dispatching-parallel-agents</span></div>
+          <p>독립 작업은 병렬로 보내고, 대량의 일회성 조사나 편향 없는 검증은 단일 subagent로 격리할 수 있어. 주 에이전트에는 압축된 증거와 결론만 돌려줘.</p>
+          <span class="arrow-line">독립성 확인 → 병렬화 또는 격리 → 증거 압축 → 종합</span>
+        </article>
+        <article class="route">
+          <h3>Skill 작성 또는 수정</h3>
+          <div class="chips"><span class="chip">writing-skills</span><span class="chip gate">verification-before-completion</span></div>
+          <p>Trigger와 책임 경계를 먼저 잡고 500단어 예산, validator, 실제 시나리오로 확인해.</p>
+          <span class="arrow-line">사례 → trigger → 지침 → validator → 시나리오</span>
+        </article>
+        <article class="route">
+          <h3>명시적인 브랜치 종료 요청</h3>
+          <div class="chips"><span class="chip">finishing-a-development-branch</span><span class="chip gate">verification evidence</span></div>
+          <p>브랜치 상태와 증거를 정리하고 merge, PR, 유지 선택지를 제시해. 승인 없이 Git 상태를 바꾸지 않아.</p>
+          <span class="arrow-line">상태 확인 → 증거 재사용 → 선택 → 승인된 작업</span>
+        </article>
+        <article class="route">
+          <h3>아무 skill도 맞지 않는 요청</h3>
+          <div class="chips"><span class="chip">using-superpowers-lite only</span></div>
+          <p>라우터가 별도 절차를 만들지 않고 일반 에이전트 동작으로 그대로 진행해.</p>
+          <span class="arrow-line">탐색 → 해당 없음 → 정상 진행</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>현재 skill 책임 지도</h2>
+        <p>각 skill은 한 가지 결정 영역만 소유해.</p>
+      </div>
+      <div class="catalog">
+        <article class="skill-card"><h3>using-superpowers-lite</h3><p>Skill 발견과 호출 규칙만 제공해.</p><p class="trigger"><strong>Trigger</strong> · 모든 세션 bootstrap</p></article>
+        <article class="skill-card"><h3>brainstorming</h3><p>범위나 설계를 바꾸는 모호성을 해결해.</p><p class="trigger"><strong>Trigger</strong> · 중요한 선택지가 여러 개일 때</p></article>
+        <article class="skill-card"><h3>systematic-debugging</h3><p>수정 전에 재현과 근본 원인을 찾게 해.</p><p class="trigger"><strong>Trigger</strong> · 버그, 실패, 성능 저하, flaky 동작</p></article>
+        <article class="skill-card"><h3>verification-before-completion</h3><p>완료 주장과 실제 증거를 연결해.</p><p class="trigger"><strong>Trigger</strong> · 완료·수정·배포 성공을 말하기 직전</p></article>
+        <article class="skill-card"><h3>dispatching-parallel-agents</h3><p>독립적인 비구현 작업을 병렬화하거나 일회성 문맥을 격리해.</p><p class="trigger"><strong>Trigger</strong> · 병렬 요청, 독립 작업 여러 개, 대량 조사 또는 편향 없는 검증</p></article>
+        <article class="skill-card"><h3>subagent-driven-development</h3><p>명확한 코딩 작업에 implementer 소유권을 배정해.</p><p class="trigger"><strong>Trigger</strong> · 경계가 분명한 구현 작업 여러 개</p></article>
+        <article class="skill-card"><h3>finishing-a-development-branch</h3><p>안전한 브랜치 통합 선택지를 제공해.</p><p class="trigger"><strong>Trigger</strong> · 사용자가 merge, PR, 종료를 명시</p></article>
+        <article class="skill-card"><h3>writing-skills</h3><p>짧고 발견 가능한 skill을 작성하고 검증해.</p><p class="trigger"><strong>Trigger</strong> · skill 생성·수정·검증</p></article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2><code>~/.codex</code>·<code>~/.claude</code>에서 가져올 개념</h2>
+        <p>개인 설정의 문구를 복사하지 않고, 여러 하네스에 통하는 구조적 원칙만 비교했어.</p>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>개념</th><th>로컬에서 확인한 형태</th><th>Lite 판단</th><th>이유와 적용 위치</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>공통 asset의 단일 원본</td>
+              <td><code>~/.agents/skills</code>를 공통 영역으로 쓰지만, Claude의 <code>git-master</code>·<code>frontend-ui-ux</code> 복사본은 현재 내용이 달라져 있음</td>
+              <td><span class="status fixed">이미 채택</span></td>
+              <td>이 drift를 피하려고 Lite는 하나의 <code>skills/</code>를 두 manifest가 직접 공유해. 하네스별 skill 복사본을 만들지 않아.</td>
+            </tr>
+            <tr>
+              <td>제품별 runtime 경계</td>
+              <td>MCP, 권한, hook, agent, 인증·세션은 각 제품 설정에 유지</td>
+              <td><span class="status fixed">이미 채택</span></td>
+              <td>공통 행동은 <code>skills/</code>, 제품 발견 정보는 <code>.codex-plugin</code>·<code>.claude-plugin</code>, 생명주기는 <code>hooks/</code>로 분리돼.</td>
+            </tr>
+            <tr>
+              <td>Host built-in 우선</td>
+              <td><code>CLAUDE.md</code>는 built-in이 못 다루는 사용자 정책만 보완</td>
+              <td><span class="status candidate">채택 추천</span></td>
+              <td><code>writing-skills</code>에 “두 host가 이미 안정적으로 제공하는 기능은 새 core skill로 복제하지 않는다”는 판단 규칙만 추가하면 돼.</td>
+            </tr>
+            <tr>
+              <td>직접 작업이 기본</td>
+              <td>병렬 fan-out, 문맥 격리, specialist 이득이 분명할 때만 위임</td>
+              <td><span class="status candidate">일부 강화 후보</span></td>
+              <td>현재도 구현 병렬화는 opt-in이야. SDD trigger에 “직접 구현보다 소유권 분리가 실질적으로 유리할 때”를 더 분명히 쓰면 과호출을 줄일 수 있어.</td>
+            </tr>
+            <tr>
+              <td>결과가 달라질 때만 질문</td>
+              <td>작고 되돌리기 쉬운 변경은 질문 없이 진행</td>
+              <td><span class="status fixed">이미 채택</span></td>
+              <td><code>brainstorming</code>이 범위·동작·설계를 바꾸는 결정만 묻고, 명확한 요청에서는 조용히 빠져나와.</td>
+            </tr>
+            <tr>
+              <td>위임 brief 계약</td>
+              <td>Context, Task, Must do, Must not, Verify, Output 구조</td>
+              <td><span class="status fixed">이미 채택</span></td>
+              <td>Implementer brief가 Outcome, Ownership, Context, Constraints, Verification과 반환 형식을 이미 포함해. 명칭만 다르고 책임은 같아.</td>
+            </tr>
+            <tr>
+              <td>검증 상태를 사실대로 분리</td>
+              <td>통과·실패·미실행과 남은 risk를 구분해 보고</td>
+              <td><span class="status fixed">이미 채택</span></td>
+              <td><code>verification-before-completion</code>이 통과 항목, 미검증 항목, 제한을 함께 보고하고 최종 변경 뒤 증거만 인정해.</td>
+            </tr>
+            <tr>
+              <td>Incident ratchet</td>
+              <td>실제 harness 실패로 정책을 바꿀 때 근거 문서를 남김</td>
+              <td><span class="status candidate">관리용 후보</span></td>
+              <td>사용자 요청마다 로드할 skill은 아니야. 반복 실패가 생길 때만 <code>incidents/</code>에 짧게 기록하는 maintainer 규칙으로 두는 게 가벼워.</td>
+            </tr>
+            <tr>
+              <td>Handoff 계약</td>
+              <td>완료, 미완료, blocker, 검증, 다음 명령을 분리</td>
+              <td><span class="status candidate">선택 기능 후보</span></td>
+              <td>세션 인계가 잦다면 독립 command나 skill로 유용해. 일반 완료 응답에 강제하면 매번 형식 비용이 생기므로 core에는 넣지 않는 편이 좋아.</td>
+            </tr>
+            <tr>
+              <td>Git·commit 규약</td>
+              <td><code>git-master</code>와 <code>/commit</code>이 승인, atomic commit, 메시지 형식을 관리</td>
+              <td><span class="status kept">Core 제외 추천</span></td>
+              <td>팀마다 규칙이 달라 독립 확장 skill이 적합해. Lite core에는 브랜치 종료 시 안전 경계만 유지하면 충분해.</td>
+            </tr>
+            <tr>
+              <td>도메인·도구 전용 skill</td>
+              <td><code>ast-grep</code>, <code>frontend-ui-ux</code>, <code>using-linear</code>, <code>report-html</code></td>
+              <td><span class="status kept">Core 제외 추천</span></td>
+              <td>좋은 skill이지만 범용 방법론이 아니라 선택형 능력이야. 별도 플러그인이나 사용자 전역 skill로 조합하는 편이 Lite 취지와 맞아.</td>
+            </tr>
+            <tr>
+              <td>개인·모델 전용 정책</td>
+              <td>응답 언어, Linear source of truth, 모델 alias, Claude built-in agent, <code>hyperplan</code></td>
+              <td><span class="status removed">가져오지 않음</span></td>
+              <td>사용자 환경이나 특정 host에 결합돼 있어 공개 하네스의 공통 행동으로 만들면 안 돼.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="principle">
+        <strong>검토 결론</strong>
+        <p>새 core skill을 추가할 필요는 없어. 실제 채택을 검토할 건 <strong>Host built-in 우선</strong>, <strong>SDD 직접 작업 기본을 더 명확히 하기</strong>, <strong>incident 기록은 runtime 밖에서만 운영하기</strong> 세 가지야.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>어색한 연결 다이어트 결과</h2>
+        <p>겹치는 trigger와 반복 실행을 줄인 현재 상태야.</p>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>발견한 문제</th><th>다이어트 전</th><th>현재 동작</th><th>상태</th></tr></thead>
+          <tbody>
+            <tr><td>Brainstorming 오탐 chatter</td><td>이미 명확해도 불필요하다고 보고</td><td>명확한 요청이면 아무 말 없이 원래 작업으로 복귀</td><td><span class="status fixed">수정</span></td></tr>
+            <tr><td>Resume bootstrap 중복</td><td>이전 문맥이 남은 resume에서도 라우터 본문을 재주입</td><td>bootstrap은 startup·clear·compact에서만 실행하고 업데이트 확인은 startup에서만 실행</td><td><span class="status fixed">수정</span></td></tr>
+            <tr><td>Parallel dispatch와 SDD 중복</td><td>독립 구현 작업이면 두 skill이 모두 넓게 일치</td><td>구현 소유권은 SDD, 일반 병렬화는 조사·분석 중심으로 분리</td><td><span class="status fixed">수정</span></td></tr>
+            <tr><td>Subagent 문맥 격리 과잉</td><td>복잡하다는 이유만으로 모든 작업을 위임할 수 있음</td><td>대량의 일회성 문맥이나 독립 검증에만 사용하고 결론·증거·위험만 부모가 종합</td><td><span class="status kept">선택적 채택</span></td></tr>
+            <tr><td>구현 병렬화 과잉</td><td>독립 작업이면 자동 병렬 가능</td><td>코딩 작업 병렬화는 사용자가 명시적으로 요청할 때만 허용</td><td><span class="status fixed">수정</span></td></tr>
+            <tr><td>검증 명령 중복 실행</td><td>디버깅·SDD·브랜치 종료 뒤 같은 검증을 다시 실행할 수 있음</td><td>최종 변경 이후의 직접적인 증거가 있으면 재사용</td><td><span class="status fixed">수정</span></td></tr>
+            <tr><td>Update manager의 skill 노출</td><td>일시적으로 업데이트 전용 skill이 존재</td><td>Hook + script 생명주기 경로로 완전히 분리</td><td><span class="status removed">제거</span></td></tr>
+            <tr><td>원본 방법론 자동 연쇄</td><td>brainstorming → planning → TDD → review 가능</td><td>모든 skill이 description으로 독립 적용되고 자동 체인은 0개</td><td><span class="status kept">차단</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>토큰이 사용되는 지점</h2>
+        <p>설치된 skill 전부를 매번 읽지 않아.</p>
+      </div>
+      <div class="split">
+        <article class="lane">
+          <h3>항상 들어오는 것</h3>
+          <ul>
+            <li>Skill 이름과 짧은 description</li>
+            <li><code>using-superpowers-lite</code> 본문 약 211단어</li>
+            <li>사용자와 저장소의 현재 지침</li>
+          </ul>
+        </article>
+        <article class="lane">
+          <h3>조건부로 들어오는 것</h3>
+          <ul>
+            <li>실제로 일치한 skill 본문만 로드</li>
+            <li>Debugging reference는 해당 증상일 때만 읽음</li>
+            <li>Subagent implementer prompt는 구현 위임 시에만 읽음</li>
+          </ul>
+        </article>
+      </div>
+      <div class="principle">
+        <strong>Lite 기준</strong>
+        <p>모든 runtime skill은 500단어 이하로 테스트돼. 선택되지 않은 planning, TDD, review, worktree skill 이름이 runtime skill에서 발견되면 저장소 테스트가 실패해.</p>
+      </div>
+    </section>
+
+    <p class="footer">
+      기준 파일: <code>hooks/hooks.json</code>, <code>hooks/session-start</code>,
+      <code>hooks/session-update</code>, <code>skills/*/SKILL.md</code>.
+      로컬 비교 대상: <code>~/.agents/AGENTS.md</code>, <code>~/.codex/AGENTS.md</code>,
+      <code>~/.claude/CLAUDE.md</code>, 사용자 전역 skill·command.
+      이 문서는 현재 구현을 설명하며 새로운 런타임 규칙을 추가하지 않아.
+    </p>
+  </main>
+</body>
+</html>

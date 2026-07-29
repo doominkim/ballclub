@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+plugin_root="$(cd "${script_dir}/.." && pwd)"
+package_file="${plugin_root}/package.json"
+remote_package_url="${SUPERPOWERS_LITE_REMOTE_PACKAGE_URL:-https://raw.githubusercontent.com/doominkim/superpowers-lite/main/package.json}"
+check_interval="${SUPERPOWERS_LITE_UPDATE_CHECK_INTERVAL_SECONDS:-86400}"
+
+read_version() {
+  node --input-type=module -e '
+    import fs from "node:fs";
+    const value = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+    if (typeof value.version !== "string" || !value.version) process.exit(1);
+    process.stdout.write(value.version);
+  ' "$1"
+}
+
+current_version="$(read_version "$package_file" 2>/dev/null || true)"
+if [[ -z "$current_version" ]]; then
+  printf '%s\n' "unavailable|unknown|unknown"
+  exit 0
+fi
+
+if [[ "${SUPERPOWERS_LITE_DISABLE_UPDATE_CHECK:-false}" == "true" ]]; then
+  printf '%s\n' "disabled|${current_version}|${current_version}"
+  exit 0
+fi
+
+if [[ -n "${SUPERPOWERS_LITE_UPDATE_DATA_DIR:-}" ]]; then
+  data_dir="${SUPERPOWERS_LITE_UPDATE_DATA_DIR}"
+elif [[ -n "${PLUGIN_DATA:-}" ]]; then
+  data_dir="${PLUGIN_DATA}/superpowers-lite"
+elif [[ -n "${CLAUDE_PLUGIN_DATA:-}" ]]; then
+  data_dir="${CLAUDE_PLUGIN_DATA}/superpowers-lite"
+else
+  cache_base="${XDG_CACHE_HOME:-${HOME}/.cache}"
+  data_dir="${cache_base}/superpowers-lite"
+fi
+
+mkdir -p "$data_dir" 2>/dev/null || true
+cache_file="${data_dir}/update-check"
+latest_version=""
+now="$(date +%s)"
+
+if [[ "${SUPERPOWERS_LITE_FORCE_UPDATE_CHECK:-false}" != "true" ]] && [[ -f "$cache_file" ]]; then
+  IFS='|' read -r checked_at cached_version < "$cache_file" || true
+  if [[ "$checked_at" =~ ^[0-9]+$ ]] && [[ "$check_interval" =~ ^[0-9]+$ ]] && (( now - checked_at < check_interval )); then
+    latest_version="${cached_version:-}"
+  fi
+fi
+
+if [[ -z "$latest_version" ]]; then
+  if [[ -n "${SUPERPOWERS_LITE_REMOTE_PACKAGE_FILE:-}" ]]; then
+    latest_version="$(read_version "$SUPERPOWERS_LITE_REMOTE_PACKAGE_FILE" 2>/dev/null || true)"
+  elif command -v curl >/dev/null 2>&1; then
+    remote_json="$(curl --silent --show-error --fail --location --max-time 3 "$remote_package_url" 2>/dev/null || true)"
+    if [[ -n "$remote_json" ]]; then
+      latest_version="$(printf '%s' "$remote_json" | node --input-type=module -e '
+        import fs from "node:fs";
+        const value = JSON.parse(fs.readFileSync(0, "utf8"));
+        if (typeof value.version !== "string" || !value.version) process.exit(1);
+        process.stdout.write(value.version);
+      ' 2>/dev/null || true)"
+    fi
+  fi
+
+  if [[ -n "$latest_version" ]]; then
+    printf '%s|%s\n' "$now" "$latest_version" > "$cache_file" 2>/dev/null || true
+  fi
+fi
+
+if [[ -z "$latest_version" ]]; then
+  printf '%s\n' "unavailable|${current_version}|unknown"
+  exit 0
+fi
+
+comparison="$(node --input-type=module -e '
+  const parse = (value) => {
+    const match = value.match(/^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/);
+    if (!match) return null;
+    return { numbers: match.slice(1, 4).map(Number), prerelease: match[4] ?? null };
+  };
+  const current = parse(process.argv[1]);
+  const latest = parse(process.argv[2]);
+  if (!current || !latest) process.exit(1);
+  for (let index = 0; index < 3; index += 1) {
+    if (latest.numbers[index] !== current.numbers[index]) {
+      process.stdout.write(latest.numbers[index] > current.numbers[index] ? "newer" : "older");
+      process.exit(0);
+    }
+  }
+  if (current.prerelease === latest.prerelease) process.stdout.write("same");
+  else if (current.prerelease === null) process.stdout.write("older");
+  else if (latest.prerelease === null) process.stdout.write("newer");
+  else process.stdout.write(latest.prerelease > current.prerelease ? "newer" : "older");
+' "$current_version" "$latest_version" 2>/dev/null || true)"
+
+if [[ "$comparison" == "newer" ]]; then
+  printf '%s\n' "update_available|${current_version}|${latest_version}"
+else
+  printf '%s\n' "up_to_date|${current_version}|${latest_version}"
+fi

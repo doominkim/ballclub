@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+marketplace="superpowers-lite-marketplace"
+harness="auto"
+approved="false"
+
+usage() {
+  printf '%s\n' "Usage: scripts/update-superpowers-lite --yes --harness codex|claude"
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --yes) approved="true"; shift ;;
+    --harness)
+      [[ $# -ge 2 ]] || { usage >&2; exit 64; }
+      harness="$2"
+      shift 2
+      ;;
+    -h|--help) usage; exit 0 ;;
+    *) usage >&2; exit 64 ;;
+  esac
+done
+
+if [[ "$approved" != "true" ]]; then
+  printf '%s\n' "Update not started: explicit user approval is required."
+  exit 64
+fi
+
+if [[ "$harness" == "auto" ]]; then
+  if [[ -n "${CODEX_THREAD_ID:-}" ]]; then
+    harness="codex"
+  elif [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]]; then
+    harness="claude"
+  else
+    printf '%s\n' "Cannot identify the active harness. Pass --harness explicitly." >&2
+    exit 64
+  fi
+fi
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || {
+    printf '%s\n' "Cannot update: required command '$1' is not installed." >&2
+    exit 127
+  }
+}
+
+case "$harness" in
+  codex)
+    require_command codex
+    codex plugin marketplace upgrade "$marketplace"
+    codex plugin add "superpowers-lite@${marketplace}"
+    ;;
+  claude)
+    require_command claude
+    claude plugin marketplace update "$marketplace"
+    claude plugin update "superpowers-lite@${marketplace}"
+    ;;
+  *)
+    printf '%s\n' "Unsupported harness: ${harness}" >&2
+    exit 64
+    ;;
+esac
+
+printf '%s\n' "Updated superpowers-lite completed. End this session and start a new one."

@@ -1,0 +1,18 @@
+{
+  "name": "superpowers-lite",
+  "version": "0.1.0",
+  "description": "Lightweight skills and runtime bootstrap for coding agents.",
+  "type": "module",
+  "scripts": {
+    "test": "bash tests/run-tests.sh",
+    "check:versions": "bash scripts/check-versions.sh"
+  },
+  "keywords": [
+    "skills",
+    "development",
+    "workflow",
+    "lightweight"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/doominkim/superpowers-lite"
+}
