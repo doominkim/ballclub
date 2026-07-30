@@ -37,6 +37,9 @@ In a fresh session, run the roster interview once:
 $setup-ballclub
 ```
 
+If player profiles are missing or only partially installed, the interview starts automatically
+on the first conversation in a new session. Use the command above to start it immediately.
+
 Setup first asks for the main harness and manager model, then installs the matching model and
 effort definitions. GPT managers get the recommended `Sol / Terra / Luna` roster; Claude
 managers get `Fable / Opus / Sonnet`. It never silently overwrites a different existing file.

@@ -14,8 +14,9 @@ mkdir -p "$clean_home"
 assert_json() {
   local mode="$1"
   local output="$2"
+  local setup_expected="${3:-true}"
   node --input-type=module -e '
-    const [mode, source] = process.argv.slice(1);
+    const [mode, source, setupExpected] = process.argv.slice(1);
     const parsed = JSON.parse(source);
     const hasOwn = (key) => Object.prototype.hasOwnProperty.call(parsed, key);
     const content = mode === "claude"
@@ -38,7 +39,11 @@ assert_json() {
     if (!content.includes("does not automatically activate TDD, design, planning, worktrees, review")) {
       throw new Error(`missing methodology isolation rule for ${mode}`);
     }
-  ' "$mode" "$output"
+    const hasSetup = content.includes("ballclub:setup-required");
+    if (hasSetup !== (setupExpected === "true")) {
+      throw new Error(`unexpected setup marker for ${mode}: ${hasSetup}`);
+    }
+  ' "$mode" "$output" "$setup_expected"
 }
 
 node --input-type=module -e '
@@ -67,6 +72,19 @@ assert_json claude "$claude"
 wrapped_claude="$(env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$wrapper" session-start)"
 assert_json claude "$wrapped_claude"
 
+mkdir -p "$clean_home/.codex/agents" "$clean_home/.claude/agents"
+for source_file in "$repo_root"/agents/codex/*.toml; do
+  cp "$source_file" "$clean_home/.codex/agents/"
+done
+for source_file in "$repo_root"/rosters/claude/*.md; do
+  cp "$source_file" "$clean_home/.claude/agents/"
+done
+
+configured_generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" bash "$hook")"
+configured_claude="$(env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
+assert_json generic "$configured_generic" false
+assert_json claude "$configured_claude" false
+
 broken_root="${test_dir}/broken-plugin"
 mkdir -p "${broken_root}/hooks"
 cp "$hook" "${broken_root}/hooks/session-start"
@@ -90,7 +108,7 @@ node --input-type=module -e '
   if (parsed.hookSpecificOutput || parsed.additional_context) throw new Error("generic update output mixed context shapes");
   const content = parsed.additionalContext;
   if (!content?.includes("ballclub:update-available")) throw new Error("missing update marker");
-  if (!content.includes("current_version=0.4.0") || !content.includes("latest_version=0.5.0")) {
+  if (!content.includes("current_version=0.4.1") || !content.includes("latest_version=0.5.0")) {
     throw new Error("missing update versions");
   }
   if (!content.includes("natural English") || !content.includes("current conversational context and tone")) {

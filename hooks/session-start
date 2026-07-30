@@ -5,6 +5,36 @@ script_dir="$(cd "$(dirname "$0")" && pwd)"
 plugin_root="$(cd "${script_dir}/.." && pwd)"
 skill_path="${plugin_root}/skills/using-ballclub/SKILL.md"
 
+roster_setup_context() {
+  local harness source_dir target_dir extension
+  local expected=0
+  local missing=0
+
+  if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]] && [[ -z "${COPILOT_CLI:-}" ]]; then
+    harness="Claude Code"
+    source_dir="${plugin_root}/rosters/claude"
+    target_dir="${CLAUDE_CONFIG_DIR:-${HOME}/.claude}/agents"
+    extension="md"
+  else
+    harness="Codex"
+    source_dir="${plugin_root}/agents/codex"
+    target_dir="${CODEX_HOME:-${HOME}/.codex}/agents"
+    extension="toml"
+  fi
+
+  local source_file
+  for source_file in "${source_dir}"/*."${extension}"; do
+    [[ -e "$source_file" ]] || continue
+    expected=$((expected + 1))
+    [[ -f "${target_dir}/$(basename "$source_file")" ]] || missing=$((missing + 1))
+  done
+
+  if (( expected > 0 && missing > 0 )); then
+    printf '%s' "ballclub:setup-required
+Ballclub detected an incomplete ${harness} roster: ${missing} of ${expected} bundled profiles are missing. On the first user-facing response, invoke the setup-ballclub skill and begin its roster interview in the user's language before handling an ordinary task. Ask one question at a time, skip answers already known from the runtime, show the exact recommended roster, and do not install profiles until the user confirms. If the user explicitly declines setup, continue without asking again in this session."
+  fi
+}
+
 escape_for_json() {
   local value="$1"
   value="${value//\\/\\\\}"
@@ -34,5 +64,6 @@ if [[ ! -r "$skill_path" ]] || ! skill_content="$(cat "$skill_path" 2>/dev/null)
 fi
 
 bootstrap_marker="ballclub:bootstrap"
-printf -v bootstrap '<BALLCLUB>\n%s\n\nThe using-ballclub skill below is already active for this session. Do not load it again. If there is even a 1%% chance another installed skill applies, invoke it before responding or acting. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n</BALLCLUB>' "$bootstrap_marker" "$skill_content"
+setup_context="$(roster_setup_context)"
+printf -v bootstrap '<BALLCLUB>\n%s\n\nThe using-ballclub skill below is already active for this session. Do not load it again. If there is even a 1%% chance another installed skill applies, invoke it before responding or acting. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n\n%s\n</BALLCLUB>' "$bootstrap_marker" "$setup_context" "$skill_content"
 emit_context "$bootstrap"

@@ -10,6 +10,7 @@ Choose a roster from the manager's actual harness and model, then install it saf
 ## Run the roster interview
 
 Ask one question at a time. Skip any answer already known from the current runtime.
+When SessionStart includes `ballclub:setup-required`, begin this interview in the first user-facing response before handling an ordinary task. Do not wait for the user to name this skill. If the user declines, continue without asking again during that session.
 
 1. Ask which main harness they use: Codex, Claude Code, or both.
 2. Ask which model runs the main manager.

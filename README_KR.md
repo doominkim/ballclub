@@ -37,6 +37,9 @@ codex plugin add ballclub@ballclub-marketplace
 $setup-ballclub
 ```
 
+선수 프로필이 비어 있거나 일부만 설치된 경우에는 새 세션의 첫 대화에서 인터뷰가
+자동으로 시작됩니다. 먼저 직접 실행하려면 위 명령을 사용할 수 있습니다.
+
 어떤 하네스와 메인 감독 모델을 사용하는지 먼저 묻고, 답변에 맞는 Setter, Batter,
 Bench, Coach의 실제 model과 effort를 설치합니다. GPT 감독에는 `Sol / Terra / Luna`,
 Claude 감독에는 `Fable / Opus / Sonnet` 선수단을 추천합니다. 기존 파일이 다르면
