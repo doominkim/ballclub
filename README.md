@@ -76,9 +76,10 @@ tests/                  structure and behavior tests
 ```
 
 The package includes the mandatory skill router plus independently triggered
-skills for focused brainstorming, systematic debugging, completion verification,
-parallel dispatch or context isolation, implementation-only subagents, branch finishing, and skill
-authoring. Update handling lives in hooks and management scripts rather than the
+skills for focused brainstorming, systematic debugging, capacity routing,
+completion verification, parallel dispatch or context isolation,
+implementation-only subagents, branch finishing, and skill authoring. Update
+handling lives in hooks and management scripts rather than the
 skill catalog. Skills never form an automatic cross-skill chain.
 
 ## Verify

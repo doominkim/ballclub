@@ -25,6 +25,8 @@ required_files=(
   skills/verification-before-completion/agents/openai.yaml
   skills/dispatching-parallel-agents/SKILL.md
   skills/dispatching-parallel-agents/agents/openai.yaml
+  skills/capacity-routing/SKILL.md
+  skills/capacity-routing/agents/openai.yaml
   skills/subagent-driven-development/SKILL.md
   skills/subagent-driven-development/agents/openai.yaml
   skills/finishing-a-development-branch/SKILL.md
@@ -91,6 +93,8 @@ rg -q 'Context isolation' skills/dispatching-parallel-agents/SKILL.md
 rg -q 'Isolation can justify one subagent' skills/dispatching-parallel-agents/SKILL.md
 rg -q 'conclusions, evidence, risks, and relevant paths' skills/dispatching-parallel-agents/SKILL.md
 rg -q 'Keep final synthesis and decisions in the parent agent' skills/dispatching-parallel-agents/SKILL.md
+rg -q 'least sufficient' skills/capacity-routing/SKILL.md
+rg -q 'Do not implement routing as a global hook' skills/capacity-routing/SKILL.md
 
 for skill_file in skills/*/SKILL.md; do
   word_count="$(wc -w < "$skill_file")"
