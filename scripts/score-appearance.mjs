@@ -32,7 +32,9 @@ if (eventPath !== allowedRoot && !eventPath.startsWith(`${allowedRoot}${path.sep
 if (!allowedResults.has(args.result)) fail('Use --result hit, walk, out, error, or unscored.');
 
 const event = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
-if (event.category !== 'player') fail('Coach events cannot receive player scores.');
+if (!['player', 'manager'].includes(event.category)) {
+  fail('Only player and manager appearances can receive scores.');
+}
 
 const homeRun = String(args['home-run'] || 'false').toLowerCase() === 'true';
 const rbi = Number.parseInt(args.rbi || '0', 10);

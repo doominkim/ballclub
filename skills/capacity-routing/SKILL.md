@@ -12,6 +12,8 @@ investigation, and review are assignments in a handoff, not agent identities.
 
 1. Decide `MAIN` first. Keep work in the main thread when it is small, tightly
    coupled to live conversation, or does not justify handoff overhead.
+   For a substantive retained task, announce `LINEUP: MANAGER` so the direct
+   manager appearance can be distinguished from routine conversation.
 2. Inventory only the capacity profiles exposed by the current harness. Do not
    invent model names, effort levels, or profile aliases.
 3. Classify the required work boundary before comparing effort: full operation,

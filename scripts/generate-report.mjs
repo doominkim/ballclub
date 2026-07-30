@@ -82,6 +82,35 @@ function emptyPlayer(agentType) {
   };
 }
 
+function applyScoredEvent(record, event) {
+  record.pa += 1;
+  record.tokens += Number(event.usage?.total_tokens || 0);
+  const result = event.score?.result || 'unscored';
+  if (result === 'hit') {
+    record.ab += 1;
+    record.hits += 1;
+    record.homeRuns += event.score?.homeRun ? 1 : 0;
+    record.rbi += Number(event.score?.rbi || 0);
+  } else if (result === 'walk') {
+    record.walks += 1;
+  } else if (result === 'out') {
+    record.ab += 1;
+    record.strikeouts += 1;
+  } else if (result === 'error') {
+    record.ab += 1;
+    record.errors += 1;
+  } else {
+    record.unscored += 1;
+    record.unscoredEvents.push(event.eventPath);
+  }
+  return record;
+}
+
+function scoreRow(record) {
+  const tokenPerHit = record.hits ? Math.round(record.tokens / record.hits) : null;
+  return `| \`${record.agentType}\` | ${record.pa} | ${record.ab} | ${record.hits} | ${record.homeRuns} | ${record.rbi} | ${record.walks} | ${record.strikeouts} | ${record.errors} | ${formatAverage(record.hits, record.ab)} | ${formatNumber(record.tokens)} | ${tokenPerHit === null ? '-' : formatNumber(tokenPerHit)} | ${record.unscored} |`;
+}
+
 function runtimeWarning(event) {
   const expected = expectedRuntime(event.agentType);
   if (!expected) return null;
@@ -99,13 +128,13 @@ function runtimeWarning(event) {
 }
 
 function makeMarkdown(report) {
-  const { range, players, coaches, warnings, totals } = report;
+  const { range, players, manager, coaches, warnings, totals } = report;
   const lines = [
     `# 구단 성적 ${range.korean} · ${range.label}`,
     '',
     `기간: ${range.start} ~ ${range.end} (Asia/Seoul)`,
     '',
-    '| 선수 호출 | 타수 | 안타 | 팀 타율 | 홈런 | 실책 | 선수단 연봉 | 검수대기 |',
+    '| 전체 타석 | 타수 | 안타 | 구단 타율 | 홈런 | 실책 | 운영 token | 검수대기 |',
     '|---:|---:|---:|---:|---:|---:|---:|---:|',
     `| ${formatNumber(totals.pa)} | ${formatNumber(totals.ab)} | ${formatNumber(totals.hits)} | ${formatAverage(totals.hits, totals.ab)} | ${formatNumber(totals.homeRuns)} | ${formatNumber(totals.errors)} | ${formatNumber(totals.tokens)} token | ${formatNumber(totals.unscored)} |`,
     '',
@@ -119,9 +148,17 @@ function makeMarkdown(report) {
     lines.push('| 순위 | 선수 | PA | AB | H | HR | RBI | BB | SO | E | AVG | 연봉 | 안타당 token | 검수대기 |');
     lines.push('|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|');
     players.forEach((player, index) => {
-      const tokenPerHit = player.hits ? Math.round(player.tokens / player.hits) : null;
-      lines.push(`| ${index + 1} | \`${player.agentType}\` | ${player.pa} | ${player.ab} | ${player.hits} | ${player.homeRuns} | ${player.rbi} | ${player.walks} | ${player.strikeouts} | ${player.errors} | ${formatAverage(player.hits, player.ab)} | ${formatNumber(player.tokens)} | ${tokenPerHit === null ? '-' : formatNumber(tokenPerHit)} | ${player.unscored} |`);
+      lines.push(scoreRow(player).replace('| `', `| ${index + 1} | \``));
     });
+  }
+
+  lines.push('', '## 감독 직접 수행', '');
+  if (!manager.pa) {
+    lines.push('감독 직접 수행 기록 없음.');
+  } else {
+    lines.push('| 감독 | PA | AB | H | HR | RBI | BB | SO | E | AVG | 연봉 | 안타당 token | 검수대기 |');
+    lines.push('|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|');
+    lines.push(scoreRow(manager));
   }
 
   lines.push('', '## Coach 자문', '');
@@ -170,6 +207,7 @@ const events = eventFiles.flatMap((filePath) => {
 });
 
 const playerMap = new Map();
+const manager = emptyPlayer('manager');
 const coachMap = new Map();
 const warningSet = new Set();
 
@@ -178,28 +216,13 @@ for (const event of events) {
   if (warning) warningSet.add(warning);
 
   if (PLAYER_RE.test(event.agentType)) {
-    const player = playerMap.get(event.agentType) || emptyPlayer(event.agentType);
-    player.pa += 1;
-    player.tokens += Number(event.usage?.total_tokens || 0);
-    const result = event.score?.result || 'unscored';
-    if (result === 'hit') {
-      player.ab += 1;
-      player.hits += 1;
-      player.homeRuns += event.score?.homeRun ? 1 : 0;
-      player.rbi += Number(event.score?.rbi || 0);
-    } else if (result === 'walk') {
-      player.walks += 1;
-    } else if (result === 'out') {
-      player.ab += 1;
-      player.strikeouts += 1;
-    } else if (result === 'error') {
-      player.ab += 1;
-      player.errors += 1;
-    } else {
-      player.unscored += 1;
-      player.unscoredEvents.push(event.eventPath);
-    }
+    const player = applyScoredEvent(
+      playerMap.get(event.agentType) || emptyPlayer(event.agentType),
+      event
+    );
     playerMap.set(event.agentType, player);
+  } else if (event.category === 'manager' || event.agentType === 'manager') {
+    applyScoredEvent(manager, event);
   } else if (COACHES.has(event.agentType)) {
     const coach = coachMap.get(event.agentType) || { agentType: event.agentType, calls: 0 };
     coach.calls += 1;
@@ -216,7 +239,7 @@ const players = [...playerMap.values()].sort(
 const coaches = [...coachMap.values()].sort(
   (a, b) => b.calls - a.calls || a.agentType.localeCompare(b.agentType)
 );
-const totals = players.reduce((sum, player) => {
+const totals = [...players, manager].reduce((sum, player) => {
   for (const key of ['pa', 'ab', 'hits', 'homeRuns', 'errors', 'tokens', 'unscored']) {
     sum[key] += player[key];
   }
@@ -230,6 +253,7 @@ const report = {
   range,
   totals,
   players,
+  manager,
   coaches,
   warnings: [...warningSet].sort(),
   reportPath

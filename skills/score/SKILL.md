@@ -1,13 +1,14 @@
 ---
 name: score
-description: Generate and archive Ballclub daily, weekly, or monthly player reports from recorded plate appearances. Use when the user asks for 일봉, 주봉, 월봉, 구단 성적, 선수 호출 수, 안타, 타율, 홈런, 실책, token 연봉, 연봉 점유율, or 안타당 token. Exclude Coach profiles from every token salary calculation.
+description: Generate Ballclub daily, weekly, or monthly reports from recorded appearances. Use for 일봉, 주봉, 월봉, 구단 성적, 선수 호출 수, 안타, 타율, 홈런, 실책, token 연봉, 연봉 점유율, or 안타당 token. Exclude Coach profiles from salary calculations.
 ---
 
 # Scorecard
 
 Generate one period-level report without listing individual task names. Treat
-`setter`, `batter`, and `bench` profiles as players in one leaderboard. Treat
-`chief-coach`, `coach`, and `assistant-coach` as external advisers.
+`setter`, `batter`, and `bench` profiles as players in one leaderboard. Show
+verified direct manager work in a separate manager section. Treat `chief-coach`,
+`coach`, and `assistant-coach` as external advisers.
 
 ## Generate a report
 
@@ -23,8 +24,8 @@ Generate one period-level report without listing individual task names. Treat
    ```
 
 4. Read the generated Markdown path printed by the command.
-5. Return the report content and a clickable local file link. Keep individual
-   task descriptions hidden unless the user explicitly asks for evidence.
+5. Return the report and a clickable local file link. Keep task descriptions
+   hidden unless the user asks for evidence.
 
 For `$score d|w|m [date]`, treat the optional date as the period anchor. If the request gives a month but no day, use the first day of that month as
 `--date`. If it gives an ISO week, use any date in that week.
@@ -58,9 +59,11 @@ Leave ambiguous appearances unscored. After scoring, regenerate the report.
 
 ## Accounting rules
 
-- Count one collected subagent stop as one plate appearance.
+- Count one collected player stop as one player plate appearance.
+- Count a substantive manager-only turn as one manager plate appearance. Do not
+  count a turn that sent a player to bat or only handled routine conversation.
 - Exclude unscored events from at-bats and batting average.
-- Calculate player salary from recorded `total_tokens` only.
+- Calculate player and manager salary from recorded `total_tokens` only.
 - Never include Coach token usage in player salary, team salary, salary share,
   or tokens per hit.
 - Show Coach calls separately without token columns.

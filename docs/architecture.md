@@ -5,15 +5,17 @@ Ballclub separates its baseball operating model from harness delivery.
 ## Core loop
 
 1. The manager keeps small or conversation-coupled work in the main thread.
+   Substantive manager-only execution becomes a manager appearance.
 2. For substantial delegation, `capacity-routing` classifies the required
    operation boundary and builds an eligible, least-sufficient lineup.
 3. A dispatch skill creates one or more bounded plate appearances with owned
    outcomes, constraints, completion criteria, and focused verification.
-4. `SubagentStop` records player and Coach appearances without blocking return.
+4. `SubagentStop` records player and Coach appearances, while `Stop` records
+   substantive manager-only appearances without double-counting delegated turns.
 5. The manager inspects evidence and applies the official score. Returned text
    alone is not enough for a hit.
-6. `score` aggregates daily, weekly, and monthly scorecards. Coach tokens
-   remain outside player salary and efficiency calculations.
+6. `score` aggregates daily, weekly, and monthly scorecards. Manager work is
+   separate from the player leaderboard, and Coach tokens remain excluded.
 
 ```text
 game state -> lineup -> plate appearance -> record -> verify -> score -> report

@@ -84,7 +84,7 @@ or adds meaningful execution capacity.
 | 🧠 Context protection | Isolates large investigation or implementation while the manager retains game state |
 | ✅ Evidence-backed scoring | Never awards a hit because a response merely returned |
 | 📈 Operational scorecards | Uses calls, average, errors, home runs, and token salary as lineup feedback |
-| 🪝 Automatic collection | Records actual player and Coach appearances through `SubagentStop` |
+| 🪝 Automatic collection | Records players and Coach through `SubagentStop`, plus direct manager work through `Stop` |
 | 🔌 Two harnesses | Delivers the same operating model to Codex and Claude Code |
 
 ## This is not a reporting plugin
@@ -100,7 +100,8 @@ operating loop. They are feedback for the next lineup, not decorative call count
 ### Manager
 
 The main agent is the manager. It owns the objective, constraints, user communication, lineup,
-integration, official scoring, and next adjustment. It is not a relay that forwards player text.
+integration, official scoring, and next adjustment. When it retains and executes substantive work
+without a player, that work becomes a separate manager plate appearance.
 
 ### Roster
 
@@ -139,7 +140,7 @@ inside that class.
 
 ### Plate-appearance contract
 
-One completed subagent turn is one plate appearance. Each appearance declares:
+One completed player turn is one player plate appearance. Each delegated appearance declares:
 
 1. work phase and selected player;
 2. owned outcome;
@@ -170,15 +171,17 @@ appearances remain pending.
 
 ### Runtime collection
 
-The `SubagentStop` hook detects declared player and Coach profiles, reads runtime identity and
-token usage from the transcript, and stores an unscored event without blocking the return path.
+The `SubagentStop` hook detects declared player and Coach profiles. The `Stop` hook records a
+manager appearance only for a substantive manager-only turn, skipping delegated and routine
+conversation turns. Both collectors store unscored events without blocking the return path.
 
 ```text
 ${BALLCLUB_DATA:-~/.codex/ballclub}/events/YYYY-MM-DD/
 ```
 
-Coach calls are reported separately and excluded from player salary, team salary, salary share,
-and tokens per hit. Token volume is never converted into currency without an explicit price source.
+Manager results are reported separately from the player leaderboard. Coach calls remain separate
+and excluded from salary and tokens per hit. Token volume is never converted into currency without
+an explicit price source.
 
 ## Scorecards
 
@@ -195,8 +198,8 @@ $score m 2026-07         # a specific month
 Natural requests such as `Show today's scorecard`, `Show this week's team report`, and `Show this
 month's player salaries` trigger the same skill.
 
-Reports cover appearances, at-bats, hits, average, home runs, errors, player token salary,
-pending reviews, Coach calls, and declared-profile versus runtime-identity warnings.
+Reports cover player and direct-manager appearances, at-bats, hits, average, home runs, errors,
+token salary, pending reviews, Coach calls, and declared-profile versus runtime-identity warnings.
 
 Direct report generation and scoring are also available:
 

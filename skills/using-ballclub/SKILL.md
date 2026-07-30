@@ -6,8 +6,10 @@ description: Establishes Ballclub's baseball-native multi-agent model and requir
 # Using Ballclub
 
 Ballclub is a baseball-native multi-agent harness. The main agent is the
-manager, executable capacity profiles are players, Coach profiles are external
-advisers, and each completed subagent turn is one plate appearance.
+manager, executable capacity profiles are players, and Coach profiles are
+external advisers. Each completed subagent turn is one player plate appearance.
+A substantive turn retained and executed by the manager is one manager plate
+appearance.
 
 ## Club rules
 
@@ -25,6 +27,9 @@ advisers, and each completed subagent turn is one plate appearance.
    verification evidence. Ambiguous appearances stay unscored.
 8. The manager owns synthesis, official decisions, user communication, and the
    next lineup adjustment.
+9. Record a manager appearance only when the manager executes the work without
+   sending a player to bat. Do not count routine routing, integration, status,
+   or conversational turns as manager appearances.
 
 ## Scorebook
 

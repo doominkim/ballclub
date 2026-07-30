@@ -22,28 +22,94 @@ function hookResponse() {
   process.stdout.write(`${JSON.stringify({ continue: true, suppressOutput: true })}\n`);
 }
 
+function turnRows(rows, turnId) {
+  const start = rows.findIndex(
+    (row) => row.type === 'turn_context' && row.payload?.turn_id === turnId
+  );
+  if (start < 0) return rows;
+  const next = rows.findIndex(
+    (row, index) => index > start && row.type === 'turn_context'
+  );
+  return rows.slice(start, next < 0 ? undefined : next);
+}
+
+function addUsage(total, usage) {
+  if (!usage || typeof usage !== 'object') return total;
+  for (const [key, value] of Object.entries(usage)) {
+    if (typeof value === 'number') total[key] = Number(total[key] || 0) + value;
+  }
+  return total;
+}
+
+function managerAppearance(hook, rows) {
+  const currentRows = turnRows(rows, hook.turn_id);
+  const toolNames = currentRows.flatMap((row) => {
+    if (row.type !== 'response_item') return [];
+    if (!['function_call', 'custom_tool_call'].includes(row.payload?.type)) return [];
+    return [String(row.payload?.name || '')];
+  });
+  const delegationTools = new Set([
+    'Agent',
+    'followup_task',
+    'interrupt_agent',
+    'list_agents',
+    'send_message',
+    'spawn_agent',
+    'wait_agent'
+  ]);
+  const delegated = toolNames.some((name) => delegationTools.has(name)) || currentRows.some(
+    (row) => row.type === 'event_msg' && row.payload?.type === 'sub_agent_activity'
+  );
+  const routedToManager = currentRows.some((row) => {
+    if (row.type !== 'response_item') return false;
+    if (!['message', 'agent_message'].includes(row.payload?.type)) return false;
+    const text = JSON.stringify(row.payload?.content || row.payload?.message || '');
+    return /(?:LINEUP:\s*MANAGER|라우팅:\s*MAIN)/i.test(text);
+  });
+  const substantive = toolNames.length > 0 || routedToManager;
+  if (delegated || !substantive) return null;
+
+  const usage = currentRows
+    .filter((row) => row.type === 'event_msg' && row.payload?.type === 'token_count')
+    .reduce(
+      (total, row) => addUsage(total, row.payload?.info?.last_token_usage),
+      {}
+    );
+  return { currentRows, usage: Object.keys(usage).length ? usage : null };
+}
+
 try {
   const hook = await readStdin();
-  const agentType = String(hook.agent_type || '');
+  const isManager = hook.hook_event_name === 'Stop';
+  const agentType = isManager ? 'manager' : String(hook.agent_type || '');
   const isPlayer = PLAYER_RE.test(agentType);
   const isCoach = COACHES.has(agentType);
 
-  if (!isPlayer && !isCoach) {
+  if (!isManager && !isPlayer && !isCoach) {
     hookResponse();
     process.exit(0);
   }
 
-  const rows = readJsonLines(hook.agent_transcript_path);
+  const transcriptPath = isManager ? hook.transcript_path : hook.agent_transcript_path;
+  const rows = readJsonLines(transcriptPath);
   const sessionMeta = rows.find((row) => row.type === 'session_meta')?.payload || {};
-  const turnContexts = rows.filter((row) => row.type === 'turn_context');
+  const manager = isManager ? managerAppearance(hook, rows) : null;
+  if (isManager && !manager) {
+    hookResponse();
+    process.exit(0);
+  }
+  const relevantRows = manager?.currentRows || rows;
+  const turnContexts = relevantRows.filter((row) => row.type === 'turn_context');
   const turnContext = turnContexts.at(-1)?.payload || {};
-  const tokenEvents = rows.filter(
+  const tokenEvents = relevantRows.filter(
     (row) => row.type === 'event_msg' && row.payload?.type === 'token_count'
   );
-  const usage = tokenEvents.at(-1)?.payload?.info?.total_token_usage || null;
-  const endedAt = rows.at(-1)?.timestamp || new Date().toISOString();
+  const usage = manager?.usage || tokenEvents.at(-1)?.payload?.info?.total_token_usage || null;
+  const endedAt = relevantRows.at(-1)?.timestamp || new Date().toISOString();
   const dateKey = kstDateKey(endedAt);
-  const eventId = `${safeId(hook.agent_id)}-${safeId(hook.turn_id, String(Date.now()))}`;
+  const eventId = isManager
+    ? `manager-${safeId(hook.turn_id, String(Date.now()))}`
+    : `${safeId(hook.agent_id)}-${safeId(hook.turn_id, String(Date.now()))}`;
   const eventPath = path.join(dataRoot(), 'events', dateKey, `${eventId}.json`);
 
   const event = {
@@ -53,20 +119,20 @@ try {
     endedAt,
     dateKey,
     parentSessionId: hook.session_id || sessionMeta.session_id || null,
-    childSessionId: sessionMeta.id || null,
+    childSessionId: isManager ? null : sessionMeta.id || null,
     turnId: hook.turn_id || null,
-    agentId: hook.agent_id || null,
+    agentId: isManager ? null : hook.agent_id || null,
     agentType,
     agentNickname: sessionMeta.agent_nickname || null,
-    category: isPlayer ? 'player' : 'coach',
+    category: isManager ? 'manager' : isPlayer ? 'player' : 'coach',
     model: turnContext.model || null,
     effort: turnContext.effort || turnContext.reasoning_effort || null,
     provider: sessionMeta.model_provider || null,
-    salaryEligible: isPlayer,
-    usage: isPlayer ? usage : null,
+    salaryEligible: !isCoach,
+    usage: isCoach ? null : usage,
     completionState: hook.last_assistant_message ? 'returned' : 'empty',
-    transcriptPath: hook.agent_transcript_path || null,
-    score: isPlayer
+    transcriptPath: transcriptPath || null,
+    score: !isCoach
       ? { result: 'unscored', homeRun: false, rbi: 0, evidence: null, reviewedAt: null }
       : { result: 'excluded', homeRun: false, rbi: 0, evidence: null, reviewedAt: null }
   };

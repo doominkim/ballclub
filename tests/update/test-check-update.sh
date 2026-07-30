@@ -6,9 +6,9 @@ checker="${repo_root}/scripts/check-update"
 test_dir="$(mktemp -d)"
 trap 'rm -rf "$test_dir"' EXIT
 
-printf '%s\n' '{"version":"0.4.0"}' > "${test_dir}/newer.json"
-printf '%s\n' '{"version":"0.3.0"}' > "${test_dir}/same.json"
-printf '%s\n' '{"version":"0.2.9"}' > "${test_dir}/older.json"
+printf '%s\n' '{"version":"0.6.1"}' > "${test_dir}/newer.json"
+printf '%s\n' '{"version":"0.6.0"}' > "${test_dir}/same.json"
+printf '%s\n' '{"version":"0.5.9"}' > "${test_dir}/older.json"
 
 run_check() {
   BALLCLUB_FORCE_UPDATE_CHECK=true \
@@ -17,9 +17,9 @@ run_check() {
     bash "$checker"
 }
 
-[[ "$(run_check newer)" == "update_available|0.3.0|0.4.0" ]]
-[[ "$(run_check same)" == "up_to_date|0.3.0|0.3.0" ]]
-[[ "$(run_check older)" == "up_to_date|0.3.0|0.2.9" ]]
-[[ "$(BALLCLUB_DISABLE_UPDATE_CHECK=true bash "$checker")" == "disabled|0.3.0|0.3.0" ]]
+[[ "$(run_check newer)" == "update_available|0.6.0|0.6.1" ]]
+[[ "$(run_check same)" == "up_to_date|0.6.0|0.6.0" ]]
+[[ "$(run_check older)" == "up_to_date|0.6.0|0.5.9" ]]
+[[ "$(BALLCLUB_DISABLE_UPDATE_CHECK=true bash "$checker")" == "disabled|0.6.0|0.6.0" ]]
 
 printf '%s\n' "update checker tests passed"

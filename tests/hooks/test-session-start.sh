@@ -7,7 +7,7 @@ update_hook="${repo_root}/hooks/session-update"
 wrapper="${repo_root}/hooks/run-hook.cmd"
 test_dir="$(mktemp -d)"
 trap 'rm -rf "$test_dir"' EXIT
-printf '%s\n' '{"version":"0.5.1"}' > "${test_dir}/remote.json"
+printf '%s\n' '{"version":"0.6.1"}' > "${test_dir}/remote.json"
 clean_home="${test_dir}/home"
 mkdir -p "$clean_home"
 
@@ -114,7 +114,7 @@ node --input-type=module -e '
   if (parsed.hookSpecificOutput || parsed.additional_context) throw new Error("generic update output mixed context shapes");
   const content = parsed.additionalContext;
   if (!content?.includes("ballclub:update-available")) throw new Error("missing update marker");
-  if (!content.includes("current_version=0.5.0") || !content.includes("latest_version=0.5.1")) {
+  if (!content.includes("current_version=0.6.0") || !content.includes("latest_version=0.6.1")) {
     throw new Error("missing update versions");
   }
   if (!content.includes("natural English") || !content.includes("current conversational context and tone")) {

@@ -178,7 +178,9 @@ node --input-type=module -e '
   import fs from "node:fs";
   const manifest = JSON.parse(fs.readFileSync("hooks/hooks.json", "utf8"));
   const stops = manifest.hooks?.SubagentStop;
+  const managerStops = manifest.hooks?.Stop;
   if (!Array.isArray(stops) || stops.length !== 1) throw new Error("missing SubagentStop collector");
+  if (!Array.isArray(managerStops) || managerStops.length !== 1) throw new Error("missing manager Stop collector");
   if (!stops[0].matcher.includes("setter") || !stops[0].matcher.includes("coach")) {
     throw new Error("collector matcher does not cover players and coaches");
   }

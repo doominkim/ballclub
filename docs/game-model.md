@@ -5,7 +5,9 @@ Ballclub uses baseball as its operating model rather than as a reporting skin.
 ## Participants
 
 - The main agent is the manager. It owns the game objective, constraints,
-  lineup, official decisions, integration, and user communication.
+  lineup, official decisions, integration, and user communication. A
+  substantive task it retains and executes without a player is a manager plate
+  appearance.
 - Setter, Batter, and Bench profiles are players. Their declared operation
   boundary determines eligibility; effort is compared only within an eligible
   class.
@@ -14,7 +16,7 @@ Ballclub uses baseball as its operating model rather than as a reporting skin.
 
 ## Plate appearance contract
 
-Every delegated turn declares:
+Every delegated player turn declares:
 
 1. player and work phase;
 2. owned outcome;
@@ -36,8 +38,13 @@ Every delegated turn declares:
 Returning an answer closes an appearance but does not award a hit. When
 evidence is insufficient, the record remains unscored.
 
+A manager appearance is recorded only when the manager performs substantive
+work without sending a player to bat. Routine routing, integration, status, and
+conversation do not create manager appearances. Manager results use the same
+verified scoring rules but appear separately from the player leaderboard.
+
 ## Club economics
 
-Recorded player tokens are called salary. Coach tokens are excluded from player
-salary, team salary, salary share, and tokens-per-hit. Token volume is never
-converted into currency cost without an explicit pricing source.
+Recorded player and direct-manager tokens are called salary. Coach tokens are
+excluded from salary and tokens-per-hit. Token volume is never converted into
+currency cost without an explicit pricing source.
