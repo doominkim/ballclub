@@ -20,6 +20,8 @@ required_files=(
   scripts/generate-report.mjs
   scripts/score-appearance.mjs
   scripts/setup-codex-agents.mjs
+  scripts/setup-claude-agents.mjs
+  scripts/setup-agent-files.mjs
   skills/using-ballclub/SKILL.md
   skills/using-ballclub/agents/openai.yaml
   skills/brainstorming/SKILL.md
@@ -110,8 +112,9 @@ rg -q 'Score unresolved appearances' skills/score/SKILL.md
 rg -q '\$score d' skills/score/SKILL.md
 rg -q '\$score w' skills/score/SKILL.md
 rg -q '\$score m' skills/score/SKILL.md
-rg -q 'setup-codex-agents.mjs --check --json' skills/setup-ballclub/SKILL.md
-rg -q 'Never infer authorization to force-replace' skills/setup-ballclub/SKILL.md
+rg -q 'setup-codex-agents.mjs' skills/setup-ballclub/SKILL.md
+rg -q 'setup-claude-agents.mjs' skills/setup-ballclub/SKILL.md
+rg -q 'not forced replacement' skills/setup-ballclub/SKILL.md
 
 agent_profile_count="$(find agents/codex -maxdepth 1 -name '*.toml' -type f | wc -l | tr -d ' ')"
 [[ "$agent_profile_count" == "15" ]] || {
@@ -126,6 +129,24 @@ for agent_file in agents/codex/*.toml; do
   rg -q '^model_reasoning_effort = "' "$agent_file"
   rg -q '^developer_instructions = """' "$agent_file"
 done
+
+claude_agent_profile_count="$(find rosters/claude -maxdepth 1 -name '*.md' -type f | wc -l | tr -d ' ')"
+[[ "$claude_agent_profile_count" == "15" ]] || {
+  echo "expected 15 bundled Claude Code agent profiles, found $claude_agent_profile_count" >&2
+  exit 1
+}
+
+for agent_file in rosters/claude/*.md; do
+  rg -q '^name: ' "$agent_file"
+  rg -q '^description: ' "$agent_file"
+  rg -q '^model: ' "$agent_file"
+  rg -q '^effort: ' "$agent_file"
+done
+
+rg -q '^model: fable$' rosters/claude/1setter.md
+rg -q '^model: opus$' rosters/claude/1batter.md
+rg -q '^model: sonnet$' rosters/claude/1bench.md
+rg -q 'gpt-5.6-sol' rosters/claude/coach.md
 
 python3 - <<'PY'
 from pathlib import Path

@@ -31,14 +31,15 @@ codex plugin marketplace add doominkim/ballclub
 codex plugin add ballclub@ballclub-marketplace
 ```
 
-In a fresh session, configure the actual player models once:
+In a fresh session, run the roster interview once:
 
 ```text
 $setup-ballclub
 ```
 
-Setup installs the real model and reasoning-effort definitions for Setter, Batter, Bench, and
-Coach under `~/.codex/agents/`. It never silently overwrites a different existing file.
+Setup first asks for the main harness and manager model, then installs the matching model and
+effort definitions. GPT managers get the recommended `Sol / Terra / Luna` roster; Claude
+managers get `Fable / Opus / Sonnet`. It never silently overwrites a different existing file.
 
 ### Claude Code
 
@@ -48,6 +49,9 @@ claude plugin install ballclub@ballclub-marketplace
 ```
 
 Approve the bundled hooks and start a fresh session.
+
+Run `$setup-ballclub` in Claude Code to install the actual player profiles under
+`~/.claude/agents/`.
 
 ## Ballclub in 30 seconds
 
@@ -104,11 +108,26 @@ Player classes are separated by their permitted operation boundary.
 | `Setter` | GPT-5.6 Sol | Full operations, including design, implementation, and complex judgment | `1setter(max)` to `5setter(low)` |
 | `Batter` | GPT-5.6 Terra | Bounded execution inside an already-defined scope | `1batter(xhigh)` to `4batter(low)` |
 | `Bench` | GPT-5.6 Luna | Investigation, classification, repeated verification, and evidence collection | `1bench(high)` to `3bench(low)` |
-| `Coach` | External adviser | Independent context analysis and decision-packet refinement; no mutation or official scoring | `chief-coach`, `coach`, `assistant-coach` |
+| `Coach` | Cross-provider external adviser | Independent context analysis and decision-packet refinement; no mutation or official scoring | `chief-coach`, `coach`, `assistant-coach` |
 
-These are not documentation-only aliases. `$setup-ballclub` installs 15 Codex custom-agent TOML
-files with the same explicit model and effort values. Actual use still depends on model
+This is the default GPT/Codex roster, not a set of documentation-only aliases.
+`$setup-ballclub` installs 15 Codex custom-agent TOML files with explicit model and effort values.
+For a Claude manager it installs 15 Claude Code subagent Markdown files with Fable setters, Opus
+batters, Sonnet bench players, and external GPT-5.6 Sol coaches. Actual use still depends on model
 availability for the account or workspace.
+
+### Roster interview
+
+Setup does not ask for all 15 profiles individually. It asks for the main harness and manager,
+then confirms one grouped roster:
+
+| Main manager | Setter | Batter | Bench | Coach |
+|---|---|---|---|---|
+| GPT / Codex | GPT-5.6 Sol | GPT-5.6 Terra | GPT-5.6 Luna | external Claude Opus |
+| Claude Fable or Opus | Claude Fable | Claude Opus | Claude Sonnet | external GPT-5.6 Sol |
+
+Coach deliberately uses the other provider so that planning and independent review do not share
+the same model family by default.
 
 There is no single global profile ranking. A high-effort player in the wrong class is still
 ineligible. Ballclub chooses the operation boundary first, then the least-sufficient effort only
@@ -214,7 +233,7 @@ evolves independently in two places, routing formats and delegation conditions c
 |---|---|
 | Ballclub skills | Shared lineup, operation-boundary, least-sufficient, appearance, verification, and scoring rules |
 | Host `AGENTS.md` | User- or repository-specific overrides such as language, display format, and approval policy |
-| Codex `agents/*.toml` | Actual profile model, effort, tools, and mutation authority |
+| Codex `agents/*.toml`, Claude Code `agents/*.md` | Actual profile model, effort, tools, and mutation authority |
 | Plugin config and hook trust | Installation activation and hook execution approval |
 
 User instructions and repository rules override Ballclub's shared defaults. Keep only the

@@ -31,14 +31,16 @@ codex plugin marketplace add doominkim/ballclub
 codex plugin add ballclub@ballclub-marketplace
 ```
 
-새 세션에서 실제 선수 모델을 한 번 설정하세요.
+새 세션에서 간단한 선수단 인터뷰를 한 번 진행하세요.
 
 ```text
 $setup-ballclub
 ```
 
-이 setup은 `~/.codex/agents/`에 Setter, Batter, Bench, Coach의 실제 model과
-reasoning effort를 설치합니다. 기존 파일이 다르면 자동으로 덮어쓰지 않습니다.
+어떤 하네스와 메인 감독 모델을 사용하는지 먼저 묻고, 답변에 맞는 Setter, Batter,
+Bench, Coach의 실제 model과 effort를 설치합니다. GPT 감독에는 `Sol / Terra / Luna`,
+Claude 감독에는 `Fable / Opus / Sonnet` 선수단을 추천합니다. 기존 파일이 다르면
+자동으로 덮어쓰지 않습니다.
 
 ### Claude Code
 
@@ -48,6 +50,9 @@ claude plugin install ballclub@ballclub-marketplace
 ```
 
 표시되는 hook을 승인하고 새 세션을 시작하면 됩니다.
+
+Claude Code에서도 `$setup-ballclub`을 실행하면 `~/.claude/agents/`에 실제 선수
+프로필을 설치할 수 있습니다.
 
 ## 30초 설명
 
@@ -105,11 +110,27 @@ Ballclub의 핵심은 **누구를 부를지**, **어디까지 맡길지**, **무
 | `Setter` | GPT-5.6 Sol | 설계·구현·복합 판단을 포함한 전체 작전 수행 | `1setter(max)` ~ `5setter(low)` |
 | `Batter` | GPT-5.6 Terra | 이미 정해진 범위 안의 제한 실행 | `1batter(xhigh)` ~ `4batter(low)` |
 | `Bench` | GPT-5.6 Luna | 조사, 분류, 반복 검증, 근거 수집 | `1bench(high)` ~ `3bench(low)` |
-| `Coach` | 외부 자문 | 독립 맥락 분석과 결정 패킷 정제. 파일 수정과 공식 판정은 하지 않음 | `chief-coach`, `coach`, `assistant-coach` |
+| `Coach` | 반대편 공급자의 외부 자문 | 독립 맥락 분석과 결정 패킷 정제. 파일 수정과 공식 판정은 하지 않음 | `chief-coach`, `coach`, `assistant-coach` |
 
-이 표는 설명용 별칭이 아닙니다. `$setup-ballclub`이 같은 model과 effort가 명시된
-Codex custom-agent TOML 15개를 실제로 설치합니다. 계정이나 workspace에서 해당
-model을 사용할 수 있는지는 Codex의 model availability 정책을 따릅니다.
+이 표는 GPT/Codex 감독용 기본 선수단이며 설명용 별칭이 아닙니다.
+`$setup-ballclub`이 model과 effort가 명시된 Codex custom-agent TOML 15개를 실제로
+설치합니다. Claude 감독을 선택하면 Setter는 Fable, Batter는 Opus, Bench는 Sonnet,
+Coach는 외부 GPT-5.6 Sol로 구성된 Claude Code subagent Markdown 15개를 설치합니다.
+계정이나 workspace에서 해당 model을 사용할 수 있는지는 각 하네스의 model
+availability 정책을 따릅니다.
+
+### 선수단 인터뷰
+
+설치기는 15명의 모델을 하나씩 묻지 않습니다. 먼저 주 하네스와 메인 감독 모델을
+확인한 다음, 선수군별 추천 구성을 한 번에 보여 드립니다.
+
+| 메인 감독 | Setter | Batter | Bench | Coach |
+|---|---|---|---|---|
+| GPT / Codex | GPT-5.6 Sol | GPT-5.6 Terra | GPT-5.6 Luna | 외부 Claude Opus |
+| Claude Fable 또는 Opus | Claude Fable | Claude Opus | Claude Sonnet | 외부 GPT-5.6 Sol |
+
+같은 공급자의 모델만으로 판단과 검토를 반복하지 않도록 Coach는 반대편 공급자를
+사용합니다. 추천 구성이 맞는지 확인한 뒤에만 선수 프로필을 설치합니다.
 
 `1setter`가 모든 상황의 1등 선수라는 뜻은 아닙니다. 전체 프로필에는 단일 순위가
 없습니다. 제한 실행이면 Batter 안에서, 근거 수집이면 Bench 안에서 가장 작은
@@ -223,7 +244,7 @@ Ballclub 규칙을 전역 `AGENTS.md`에 그대로 복사하지 마세요. 같�
 |---|---|
 | Ballclub skills | 라인업, 작전 범위, least-sufficient 선택, 타석 계약, 검증과 기록의 공통 규칙 |
 | 호스트의 `AGENTS.md` | 언어, 표시 형식, 조직별 승인 절차와 같은 사용자·저장소별 override |
-| Codex의 `agents/*.toml` | 실제 profile의 모델, effort, 도구, mutation 권한 |
+| Codex `agents/*.toml`, Claude Code `agents/*.md` | 실제 profile의 모델, effort, 도구, mutation 권한 |
 | plugin config와 hook trust | 설치 활성화와 hook 실행 승인 상태 |
 
 충돌 시에는 사용자 지시와 저장소 규칙이 Ballclub의 공통 규칙보다 우선합니다.

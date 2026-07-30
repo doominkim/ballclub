@@ -6,7 +6,7 @@
 The bootstrap establishes the manager, player, Coach, lineup, plate appearance,
 and scorebook boundaries. It does not force unrelated development workflows.
 
-## Codex roster setup
+## Roster setup
 
 Codex discovers custom agents only from personal `~/.codex/agents/` or project
 `.codex/agents/` configuration. Ballclub ships canonical definitions under
@@ -14,6 +14,11 @@ Codex discovers custom agents only from personal `~/.codex/agents/` or project
 Missing and unchanged managed profiles update safely. Unknown or user-modified
 files remain conflicts until explicit force approval, which creates a backup
 before replacement. A fresh session loads the resulting roster.
+
+Claude Code discovers personal subagents from `~/.claude/agents/`. The same
+interview installs Fable setters, Opus batters, Sonnet bench players, and
+external GPT-5.6 Sol coaches from `rosters/claude/`. It selects the roster from
+the main manager model before writing any profile.
 
 ## Appearance collection
 

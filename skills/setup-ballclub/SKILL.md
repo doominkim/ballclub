@@ -1,42 +1,42 @@
 ---
 name: setup-ballclub
-description: Install, repair, or update Ballclub's bundled Codex custom-agent profiles with their actual model, reasoning effort, instructions, and sandbox settings. Use after installing or updating Ballclub, when the user asks to configure the roster or player models, or when Setter, Batter, Bench, or Coach profiles are missing or stale.
+description: Interview the user about their main harness and manager model, then install, repair, or update Ballclub's model-defined Codex or Claude Code roster without overwriting custom agents. Use after installing or updating Ballclub, when configuring player models, or when Setter, Batter, Bench, or Coach profiles are missing or stale.
 ---
 
 # Set Up Ballclub
 
-Install the bundled Codex roster without silently overwriting user-customized agents.
+Choose a roster from the manager's actual harness and model, then install it safely.
 
-## Configure the roster
+## Run the roster interview
 
-1. Resolve the plugin root as two directories above this `SKILL.md`.
-2. Inspect profile state:
+Ask one question at a time. Skip any answer already known from the current runtime.
 
-   ```bash
-   node <plugin-root>/scripts/setup-codex-agents.mjs --check --json
-   ```
+1. Ask which main harness they use: Codex, Claude Code, or both.
+2. Ask which model runs the main manager.
+3. Present the matching roster and ask whether to install it:
 
-3. If every profile is `current` or `compatible`, report that no profile write is needed. `compatible` means the actual name, model, and reasoning effort match while user instructions differ and remain preserved.
-4. If profiles are `missing` or `managed-update` and none are `conflict`, run:
+   | Manager | Setter | Batter | Bench | Coach |
+   |---|---|---|---|---|
+   | GPT / Codex | GPT-5.6 Sol | GPT-5.6 Terra | GPT-5.6 Luna | external Claude Opus |
+   | Claude Fable or Opus | Claude Fable | Claude Opus | Claude Sonnet | external GPT-5.6 Sol |
 
-   ```bash
-   node <plugin-root>/scripts/setup-codex-agents.mjs --install --json
-   ```
+   Explain that effort tiers remain `Setter max..low`, `Batter xhigh..low`, and `Bench high..low`. Do not ask the user to choose all 15 profiles individually.
+4. If they reject the matching roster, collect one model family for each of Setter, Batter, Bench, and Coach. Do not write a custom roster until you have shown the exact generated mapping and received confirmation.
 
-5. If any profile is `conflict`, preserve it. Report only the conflicting filenames and explain that Ballclub did not overwrite user configuration. Use `--force` only after explicit user approval:
+## Install a bundled roster
 
-   ```bash
-   node <plugin-root>/scripts/setup-codex-agents.mjs --install --force --json
-   ```
+Resolve the plugin root as two directories above this `SKILL.md`. Use `scripts/setup-codex-agents.mjs` for Codex and `scripts/setup-claude-agents.mjs` for Claude Code. For `both`, run each flow separately.
 
-   Forced replacement backs up conflicting files beneath the Ballclub data directory first.
-6. Re-run `--check --json`. Require every bundled profile to be `current` or `compatible` before reporting success.
-7. Tell the user to start a fresh Codex session so the new custom agents are discovered.
+1. Inspect with `node <script> --check --json`.
+2. If every profile is `current` or `compatible`, do not write anything.
+3. If profiles are `missing` or `managed-update` and none are `conflict`, run `node <script> --install --json`.
+4. Preserve every `conflict`. Report only its filenames. Use `--install --force --json` only after explicit approval; it backs up replaced files first.
+5. Re-run `--check --json` and require all profiles to be `current` or `compatible`.
+6. Tell Codex users to start a fresh session. Claude Code detects changes within seconds unless its agents directory did not exist when the session started, in which case restart it.
 
 ## Boundaries
 
-- Treat invoking this setup skill as authorization to install missing and safely managed profiles.
-- Never infer authorization to force-replace a conflicting profile.
-- Do not edit `config.toml`, global `AGENTS.md`, or unrelated custom agents.
-- Do not claim that a model is available to the account merely because its profile file installed.
-- This setup targets local Codex custom agents. Do not install these TOML files for Claude Code.
+- Invoking this skill authorizes missing and safely managed profile installation, not forced replacement.
+- Never edit `config.toml`, `settings.json`, `AGENTS.md`, `CLAUDE.md`, or unrelated agents.
+- Do not claim account availability merely because a profile installed. Claude Fable requires an eligible account and supported Claude Code version.
+- A matching name, model, and effort with different user instructions is `compatible` and stays untouched.

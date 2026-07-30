@@ -1,4 +1,4 @@
 interface:
   display_name: "Set Up Ballclub"
-  short_description: "Install and sync actual Codex player model profiles"
-  default_prompt: "Use $setup-ballclub to install the bundled Ballclub Codex agent profiles."
+  short_description: "Choose and install a model-defined Ballclub roster"
+  default_prompt: "Use $setup-ballclub to interview me about my manager and install the matching player roster."
