@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Ballclub launcher
+set -euo pipefail
+
+if ! command -v codex >/dev/null 2>&1; then
+  printf '%s\n' "ballclub: Codex CLI was not found on PATH" >&2
+  exit 127
+fi
+
+case "${1:-}" in
+  -h|--help|-V|--version)
+    exec codex "$@"
+    ;;
+esac
+
+setup_prompt="${BALLCLUB_SETUP_PROMPT:-Ballclub 선수단 초기 설정 인터뷰를 시작해줘. 현재 런타임에서 확인 가능한 하네스와 메인 모델 질문은 건너뛰고, 추천 로스터를 보여준 뒤 설치 여부를 한 번에 한 질문씩 물어봐.}"
+exec codex "$@" "$setup_prompt"

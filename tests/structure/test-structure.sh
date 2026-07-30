@@ -11,6 +11,7 @@ required_files=(
   hooks/hooks.json
   hooks/session-start
   hooks/session-update
+  bin/ballclub
   docs/game-model.md
   docs/runtime-flow.md
   scripts/check-update
@@ -22,6 +23,7 @@ required_files=(
   scripts/setup-codex-agents.mjs
   scripts/setup-claude-agents.mjs
   scripts/setup-agent-files.mjs
+  scripts/install-launcher
   skills/using-ballclub/SKILL.md
   skills/using-ballclub/agents/openai.yaml
   skills/brainstorming/SKILL.md
@@ -50,6 +52,9 @@ required_files=(
 for file in "${required_files[@]}"; do
   [[ -f "$file" ]] || { echo "missing required file: $file" >&2; exit 1; }
 done
+
+[[ -x bin/ballclub ]] || { echo "launcher must be executable" >&2; exit 1; }
+[[ -x scripts/install-launcher ]] || { echo "launcher installer must be executable" >&2; exit 1; }
 
 if [[ -e skills/updating-ballclub ]]; then
   echo "plugin lifecycle manager must not be exposed as a skill" >&2

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+repo_root="$(cd "${script_dir}/.." && pwd)"
+source_file="${repo_root}/bin/ballclub"
+target_dir="${BALLCLUB_BIN_DIR:-${HOME}/.local/bin}"
+target_file="${target_dir}/ballclub"
+
+if [[ -z "$target_dir" ]]; then
+  printf '%s\n' "ballclub: launcher target directory is empty" >&2
+  exit 1
+fi
+
+if [[ -e "$target_file" || -L "$target_file" ]]; then
+  if cmp -s "$source_file" "$target_file"; then
+    printf '%s\n' "Ballclub launcher is already current: ${target_file}"
+    exit 0
+  fi
+  if [[ -L "$target_file" ]] || ! grep -q '^# Ballclub launcher$' "$target_file" 2>/dev/null; then
+    printf '%s\n' "ballclub: preserving existing command at ${target_file}" >&2
+    exit 2
+  fi
+fi
+
+mkdir -p "$target_dir"
+temporary_file="$(mktemp "${target_dir}/.ballclub.XXXXXX")"
+trap 'rm -f "$temporary_file"' EXIT
+install -m 0755 "$source_file" "$temporary_file"
+mv "$temporary_file" "$target_file"
+trap - EXIT
+
+printf '%s\n' "Installed Ballclub launcher: ${target_file}"

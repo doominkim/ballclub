@@ -31,6 +31,17 @@ codex plugin marketplace add doominkim/ballclub
 codex plugin add ballclub@ballclub-marketplace
 ```
 
+대화 입력 없이 바로 선수단 인터뷰를 시작하고 싶다면 저장소에서 런처를 한 번
+설치하세요.
+
+```bash
+bash scripts/install-launcher
+ballclub
+```
+
+`ballclub`은 Codex를 열면서 초기 설정 요청을 첫 프롬프트로 자동 제출합니다. Codex
+옵션도 그대로 전달할 수 있습니다. 예: `ballclub -C /path/to/project`
+
 새 세션에서 간단한 선수단 인터뷰를 한 번 진행하세요.
 
 ```text

@@ -31,6 +31,17 @@ codex plugin marketplace add doominkim/ballclub
 codex plugin add ballclub@ballclub-marketplace
 ```
 
+To start the roster interview without typing into a blank conversation, install the launcher
+once from the repository:
+
+```bash
+bash scripts/install-launcher
+ballclub
+```
+
+`ballclub` opens Codex and submits the setup request as the first prompt. Codex options are
+forwarded unchanged, for example `ballclub -C /path/to/project`.
+
 In a fresh session, run the roster interview once:
 
 ```text
