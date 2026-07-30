@@ -37,8 +37,8 @@ required_files=(
   skills/finishing-a-development-branch/agents/openai.yaml
   skills/writing-skills/SKILL.md
   skills/writing-skills/agents/openai.yaml
-  skills/scorecard/SKILL.md
-  skills/scorecard/agents/openai.yaml
+  skills/score/SKILL.md
+  skills/score/agents/openai.yaml
   package.json
 )
 
@@ -103,7 +103,10 @@ rg -q 'Keep final synthesis and decisions in the parent agent' skills/dispatchin
 rg -q 'least sufficient' skills/capacity-routing/SKILL.md
 rg -q 'Do not implement routing as a global hook' skills/capacity-routing/SKILL.md
 rg -q 'plate appearance' skills/capacity-routing/SKILL.md
-rg -q 'Score unresolved appearances' skills/scorecard/SKILL.md
+rg -q 'Score unresolved appearances' skills/score/SKILL.md
+rg -q '\$score d' skills/score/SKILL.md
+rg -q '\$score w' skills/score/SKILL.md
+rg -q '\$score m' skills/score/SKILL.md
 
 node --input-type=module -e '
   import fs from "node:fs";

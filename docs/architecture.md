@@ -12,7 +12,7 @@ Ballclub separates its baseball operating model from harness delivery.
 4. `SubagentStop` records player and Coach appearances without blocking return.
 5. The manager inspects evidence and applies the official score. Returned text
    alone is not enough for a hit.
-6. `scorecard` aggregates daily, weekly, and monthly scorecards. Coach tokens
+6. `score` aggregates daily, weekly, and monthly scorecards. Coach tokens
    remain outside player salary and efficiency calculations.
 
 ```text
@@ -39,7 +39,7 @@ skill discovery, but invoking a skill does not activate unrelated methodology.
 - `capacity-routing`: lineup construction within allowed operation boundaries
 - `dispatching-parallel-agents`: independent or context-isolated batting order
 - `subagent-driven-development`: bounded implementation appearances
-- `scorecard`: official score review and period reports
+- `score`: official score review and period reports
 - `brainstorming`, `systematic-debugging`, `verification-before-completion`,
   `finishing-a-development-branch`, `writing-skills`: independently triggered
   development workflows

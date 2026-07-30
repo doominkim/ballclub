@@ -65,17 +65,21 @@ claude plugin install ballclub@ballclub-marketplace
 ```
 
 `skills/using-ballclub`은 구단 운영 규칙을 정의해. `capacity-routing`은
-라인업을 구성하고, dispatch 계열 skill은 타석을 정의하며, `scorecard`는
+라인업을 구성하고, dispatch 계열 skill은 타석을 정의하며, `score`는
 공식 기록 검토와 기간별 보고서를 담당해. 기존 개발 workflow skill은 각각
 독립적으로 작동하고, 야구식 용어가 TDD·계획·리뷰 같은 방법론을 자동으로
 강제하지는 않아.
 
 ## 스코어카드 호출
 
-명시적으로 호출하려면:
+명시적으로 호출하려면 기간을 한 글자로 붙이면 돼.
 
 ```text
-$scorecard 오늘 일봉 보여줘
+$score d                 # 오늘 일봉
+$score w                 # 이번 주 주봉
+$score m                 # 이번 달 월봉
+$score d 2026-07-30      # 특정 날짜
+$score m 2026-07         # 특정 월
 ```
 
 평소에는 skill 이름을 외우지 않고 자연어로 요청해도 돼.

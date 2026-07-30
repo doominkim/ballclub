@@ -66,17 +66,21 @@ manager reads the game state
 ```
 
 `skills/using-ballclub` establishes the club rules. `capacity-routing` builds
-the lineup, dispatch skills define plate appearances, and `scorecard`
+the lineup, dispatch skills define plate appearances, and `score`
 generates scorecards. Existing development skills remain independently
 triggered; baseball terminology does not force TDD, planning, review, or any
 other methodology chain.
 
 ## Reports
 
-Call the report skill explicitly:
+Call the report skill with a one-letter period:
 
 ```text
-$scorecard Show today's daily report.
+$score d                 # today
+$score w                 # this week
+$score m                 # this month
+$score d 2026-07-30      # a specific day
+$score m 2026-07         # a specific month
 ```
 
 Natural requests such as `Show today's scorecard`, `Show this week's team

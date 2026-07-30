@@ -1,5 +1,5 @@
 ---
-name: scorecard
+name: score
 description: Generate and archive Ballclub daily, weekly, or monthly player reports from recorded plate appearances. Use when the user asks for 일봉, 주봉, 월봉, 구단 성적, 선수 호출 수, 안타, 타율, 홈런, 실책, token 연봉, 연봉 점유율, or 안타당 token. Exclude Coach profiles from every token salary calculation.
 ---
 
@@ -12,10 +12,10 @@ Generate one period-level report without listing individual task names. Treat
 ## Generate a report
 
 1. Resolve the plugin root as two directories above this `SKILL.md`.
-2. Map the request to one period:
-   - `일봉`, today, or a calendar day -> `daily`
-   - `주봉`, this week, or an ISO week -> `weekly`
-   - `월봉`, this month, or a calendar month -> `monthly`
+2. Map the explicit short form or natural request to one period:
+   - `$score d`, `일봉`, today, or a calendar day -> `daily`
+   - `$score w`, `주봉`, this week, or an ISO week -> `weekly`
+   - `$score m`, `월봉`, this month, or a calendar month -> `monthly`
 3. Run:
 
    ```bash
@@ -26,7 +26,7 @@ Generate one period-level report without listing individual task names. Treat
 5. Return the report content and a clickable local file link. Keep individual
    task descriptions hidden unless the user explicitly asks for evidence.
 
-If the request gives a month but no day, use the first day of that month as
+For `$score d|w|m [date]`, treat the optional date as the period anchor. If the request gives a month but no day, use the first day of that month as
 `--date`. If it gives an ISO week, use any date in that week.
 
 ## Score unresolved appearances

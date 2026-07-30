@@ -31,7 +31,7 @@
     ],
     "defaultPrompt": [
       "Build the least-sufficient lineup for this task.",
-      "Show today's Ballclub scorecard.",
+      "$score d — show today's Ballclub scorecard.",
       "Diagnose this problem and score the verified result."
     ]
   }
