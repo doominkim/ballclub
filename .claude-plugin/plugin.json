@@ -1,7 +1,7 @@
 {
   "name": "ballclub",
   "description": "Baseball-native multi-agent roster routing, scoring, and reporting.",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "author": {
     "name": "Dominic Kim",
     "email": "kimduumin@gmail.com"

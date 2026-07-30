@@ -19,18 +19,12 @@ assert_json() {
     const [mode, source, setupExpected] = process.argv.slice(1);
     const parsed = JSON.parse(source);
     const hasOwn = (key) => Object.prototype.hasOwnProperty.call(parsed, key);
-    const content = mode === "claude"
-      ? parsed.hookSpecificOutput?.additionalContext
-      : parsed.additionalContext;
-    if (mode === "claude") {
-      if (parsed.hookSpecificOutput?.hookEventName !== "SessionStart") {
-        throw new Error("missing Claude SessionStart event name");
-      }
-      if (hasOwn("additionalContext") || hasOwn("additional_context")) {
-        throw new Error("Claude output included a second context field");
-      }
-    } else if (hasOwn("hookSpecificOutput") || hasOwn("additional_context")) {
-      throw new Error("generic output included a second context field");
+    const content = parsed.hookSpecificOutput?.additionalContext;
+    if (parsed.hookSpecificOutput?.hookEventName !== "SessionStart") {
+      throw new Error(`missing SessionStart event name for ${mode}`);
+    }
+    if (hasOwn("additionalContext") || hasOwn("additional_context")) {
+      throw new Error(`${mode} output included a second context field`);
     }
     if (!content?.includes("ballclub:bootstrap")) throw new Error(`missing marker for ${mode}`);
     if (!content.includes("If there is even a 1% chance another installed skill applies")) {
@@ -91,7 +85,7 @@ cp "$hook" "${broken_root}/hooks/session-start"
 broken_output="$(env -i PATH="${PATH:-}" HOME="$clean_home" bash "${broken_root}/hooks/session-start")"
 node --input-type=module -e '
   const parsed = JSON.parse(process.argv[1]);
-  if (!parsed.additionalContext?.includes("ballclub:bootstrap-unavailable")) {
+  if (!parsed.hookSpecificOutput?.additionalContext?.includes("ballclub:bootstrap-unavailable")) {
     throw new Error("missing graceful bootstrap fallback");
   }
 ' "$broken_output"
@@ -108,7 +102,7 @@ node --input-type=module -e '
   if (parsed.hookSpecificOutput || parsed.additional_context) throw new Error("generic update output mixed context shapes");
   const content = parsed.additionalContext;
   if (!content?.includes("ballclub:update-available")) throw new Error("missing update marker");
-  if (!content.includes("current_version=0.4.2") || !content.includes("latest_version=0.5.0")) {
+  if (!content.includes("current_version=0.4.3") || !content.includes("latest_version=0.5.0")) {
     throw new Error("missing update versions");
   }
   if (!content.includes("natural English") || !content.includes("current conversational context and tone")) {

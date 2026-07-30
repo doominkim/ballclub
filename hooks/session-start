@@ -50,11 +50,7 @@ emit_context() {
   local escaped
   escaped="$(escape_for_json "$context")"
 
-  if [[ -z "${PLUGIN_ROOT:-}" ]] && [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]] && [[ -z "${COPILOT_CLI:-}" ]]; then
-    printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped"
-  else
-    printf '{\n  "additionalContext": "%s"\n}\n' "$escaped"
-  fi
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped"
 }
 
 skill_content=""
