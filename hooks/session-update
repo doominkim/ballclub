@@ -18,8 +18,8 @@ else
   harness="auto"
 fi
 
-printf -v update_command 'bash "%s/scripts/update-superpowers-lite" --yes --harness %s' "$plugin_root" "$harness"
-printf -v message 'superpowers-lite:update-available\ncurrent_version=%s\nlatest_version=%s\nupdate_command=%s\nTell the user in natural English, adapted to the current conversational context and tone, that a newer Superpowers Lite version is available and ask whether to update now. Mention that a successful update requires ending this session and starting a new one. Keep it brief, do not quote this notice, and do not use a fixed template. Do not run update_command until the user explicitly approves. After approval, run update_command exactly as provided. On success, tell the user naturally in English that Superpowers Lite was updated and that this session must end, then stop all further work in the current session.' "$current_version" "$latest_version" "$update_command"
+printf -v update_command 'bash "%s/scripts/update-ballclub" --yes --harness %s' "$plugin_root" "$harness"
+printf -v message 'ballclub:update-available\ncurrent_version=%s\nlatest_version=%s\nupdate_command=%s\nTell the user in natural English, adapted to the current conversational context and tone, that a newer Ballclub version is available and ask whether to update now. Mention that a successful update requires ending this session and starting a new one. Keep it brief, do not quote this notice, and do not use a fixed template. Do not run update_command until the user explicitly approves. After approval, run update_command exactly as provided. On success, tell the user naturally in English that Ballclub was updated and that this session must end, then stop all further work in the current session.' "$current_version" "$latest_version" "$update_command"
 
 escape_for_json() {
   local value="$1"

@@ -1,47 +1,60 @@
 ---
 name: capacity-routing
-description: Use when a substantial task may be delegated and Codex must decide whether to keep it in the main thread or select the least-sufficient available capacity profile. Trigger for model or effort selection, Batter or Bench selection, or a request that needs context-isolated design, implementation, investigation, or review work. Do not use for short questions, status checks, trivial edits, or when the user already selected a profile.
+description: Use when the Ballclub manager must keep a substantial task in the dugout or build a lineup from eligible, least-sufficient capacity profiles. Trigger for model or effort selection, player-class selection, or context-isolated design, implementation, investigation, or review work. Do not use for short questions, status checks, trivial edits, or a user-selected player.
 ---
 
-# Capacity Routing
+# Building the Lineup
 
 Choose capacity independently from the work phase. Design, implementation,
 investigation, and review are assignments in a handoff, not agent identities.
 
-## Route
+## Set the lineup
 
 1. Decide `MAIN` first. Keep work in the main thread when it is small, tightly
    coupled to live conversation, or does not justify handoff overhead.
 2. Inventory only the capacity profiles exposed by the current harness. Do not
    invent model names, effort levels, or profile aliases.
-3. Assess: ambiguity, change breadth, reversibility, security/financial/regulatory
-   impact, failure cost, and repetition. Treat high-impact flags as overrides;
-   do not average them away.
-4. Choose the least sufficient profile. Prefer lower capacity for known,
-   reversible work. Raise capacity for material uncertainty, blast radius, or
-   costly failure. Prefer a lower-cost parallel profile for clear repetitive
-   work when the current catalog provides one.
-5. State the route before delegation:
+3. Classify the required work boundary before comparing effort: full operation,
+   bounded execution, support-only analysis, or independent coaching. Respect
+   each profile's declared tools, allowed work, and mutation authority. A
+   higher-effort profile in another class is not an upgrade if it lacks the
+   required capability.
+4. Assess eligible profiles for ambiguity, change breadth, reversibility,
+   security/financial/regulatory impact, failure cost, and repetition. Treat
+   high-impact flags as overrides; do not average them away.
+5. Choose the least sufficient profile within the eligible class. Prefer lower
+   effort for known, reversible work. Raise effort for material uncertainty,
+   blast radius, or costly failure. Prefer a lower-cost parallel profile for
+   clear repetitive work when the catalog provides one.
+6. Announce the lineup decision before delegation:
 
    ```text
-   ROUTE: MAIN | <profile>
+   LINEUP: MANAGER | <player-profile>
    REASON: <one concrete sentence>
    PHASE: design | implementation | investigation | review
    ```
 
-6. If delegating, include the phase, owned outcome, relevant constraints,
-   completion criteria, and focused verification in the handoff. Keep final
-   synthesis and user communication in the main thread.
+7. If delegating, define one plate appearance: phase, player, owned outcome,
+   relevant constraints, completion criteria, and focused verification. Keep
+   official scoring, final synthesis, and user communication with the manager.
 
 ## Escalation
 
-If the selected profile discovers a missing decision, a larger blast radius, or
+If the selected player discovers a missing decision, a larger blast radius, or
 a high-impact risk, stop the affected work and report the evidence to the main
 thread for rerouting. Do not silently upgrade or expand scope.
 
+When a player believes user judgment is needed for policy, scope, cost,
+irreversibility, or an external commitment, have it return a decision packet:
+the decision, options, recommendation, evidence, and why it cannot proceed.
+Before asking the user, the main may route that packet to an eligible
+independent coach. The coach checks whether existing context resolves it or
+whether the question can be narrowed. The coach advises; it does not mutate
+files, make the final decision, or become a mandatory hook for trivial gaps.
+
 ## Boundaries
 
-- A user-selected profile wins.
+- A user-selected player wins.
 - Do not implement routing as a global hook or force it on every message.
 - Do not make a profile name imply a specialty or require a separate reviewer,
   planner, or implementer role.

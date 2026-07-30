@@ -1,14 +1,14 @@
 {
-  "name": "superpowers-lite-marketplace",
+  "name": "ballclub-marketplace",
   "interface": {
-    "displayName": "Superpowers Lite Marketplace"
+    "displayName": "Ballclub Marketplace"
   },
   "plugins": [
     {
-      "name": "superpowers-lite",
+      "name": "ballclub",
       "source": {
         "source": "url",
-        "url": "https://github.com/doominkim/superpowers-lite.git",
+        "url": "https://github.com/doominkim/ballclub.git",
         "ref": "main"
       },
       "policy": {

@@ -1,18 +1,19 @@
 {
-  "name": "superpowers-lite",
-  "version": "0.1.0",
-  "description": "Lightweight skills and runtime bootstrap for coding agents.",
+  "name": "ballclub",
+  "version": "0.2.0",
+  "description": "Baseball-native multi-agent harness with lineup routing, verified scoring, and team reports.",
   "type": "module",
   "scripts": {
     "test": "bash tests/run-tests.sh",
     "check:versions": "bash scripts/check-versions.sh"
   },
   "keywords": [
-    "skills",
-    "development",
-    "workflow",
-    "lightweight"
+    "multi-agent",
+    "harness",
+    "baseball",
+    "routing",
+    "evaluation"
   ],
   "license": "MIT",
-  "repository": "https://github.com/doominkim/superpowers-lite"
+  "repository": "https://github.com/doominkim/ballclub"
 }

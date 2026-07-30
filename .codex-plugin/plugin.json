@@ -1,26 +1,27 @@
 {
-  "name": "superpowers-lite",
-  "version": "0.1.0",
-  "description": "A lightweight, composable development skills framework without mandatory methodology.",
+  "name": "ballclub",
+  "version": "0.2.0",
+  "description": "A baseball-native multi-agent harness for lineup routing, verified scoring, and team reports.",
   "author": {
     "name": "Dominic Kim",
     "email": "kimduumin@gmail.com",
     "url": "https://github.com/doominkim"
   },
-  "homepage": "https://github.com/doominkim/superpowers-lite",
-  "repository": "https://github.com/doominkim/superpowers-lite",
+  "homepage": "https://github.com/doominkim/ballclub",
+  "repository": "https://github.com/doominkim/ballclub",
   "license": "MIT",
   "keywords": [
-    "skills",
-    "development",
-    "workflow",
-    "lightweight"
+    "multi-agent",
+    "harness",
+    "baseball",
+    "routing",
+    "evaluation"
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Superpowers Lite",
-    "shortDescription": "Apply only the development skills that fit",
-    "longDescription": "A multi-harness plugin that discovers relevant skills without imposing unrelated development workflows.",
+    "displayName": "Ballclub",
+    "shortDescription": "Build the lineup, send agents to bat, keep score",
+    "longDescription": "A baseball-native multi-agent harness that selects an eligible player, records each plate appearance, verifies outcomes, and turns performance into daily, weekly, and monthly team reports.",
     "developerName": "Dominic Kim",
     "category": "Developer Tools",
     "capabilities": [
@@ -29,8 +30,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use only the Superpowers Lite skills relevant to this task.",
-      "Diagnose this problem from evidence and verify the result."
+      "Build the least-sufficient lineup for this task.",
+      "Show today's Ballclub scorecard.",
+      "Diagnose this problem and score the verified result."
     ]
   }
 }

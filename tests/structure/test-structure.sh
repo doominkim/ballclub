@@ -11,12 +11,16 @@ required_files=(
   hooks/hooks.json
   hooks/session-start
   hooks/session-update
-  docs/concept-review.html
-  docs/runtime-flow.html
+  docs/game-model.md
+  docs/runtime-flow.md
   scripts/check-update
-  scripts/update-superpowers-lite
-  skills/using-superpowers-lite/SKILL.md
-  skills/using-superpowers-lite/agents/openai.yaml
+  scripts/update-ballclub
+  scripts/ballclub-lib.mjs
+  scripts/collect-appearance.mjs
+  scripts/generate-report.mjs
+  scripts/score-appearance.mjs
+  skills/using-ballclub/SKILL.md
+  skills/using-ballclub/agents/openai.yaml
   skills/brainstorming/SKILL.md
   skills/brainstorming/agents/openai.yaml
   skills/systematic-debugging/SKILL.md
@@ -33,6 +37,8 @@ required_files=(
   skills/finishing-a-development-branch/agents/openai.yaml
   skills/writing-skills/SKILL.md
   skills/writing-skills/agents/openai.yaml
+  skills/scorecard/SKILL.md
+  skills/scorecard/agents/openai.yaml
   package.json
 )
 
@@ -40,7 +46,7 @@ for file in "${required_files[@]}"; do
   [[ -f "$file" ]] || { echo "missing required file: $file" >&2; exit 1; }
 done
 
-if [[ -e skills/updating-superpowers-lite ]]; then
+if [[ -e skills/updating-ballclub ]]; then
   echo "plugin lifecycle manager must not be exposed as a skill" >&2
   exit 1
 fi
@@ -53,8 +59,8 @@ unsupported_paths=(
   GEMINI.md
   gemini-extension.json
   hooks/hooks-cursor.json
-  skills/using-superpowers-lite/references/gemini-tools.md
-  skills/using-superpowers-lite/references/pi-tools.md
+  skills/using-ballclub/references/gemini-tools.md
+  skills/using-ballclub/references/pi-tools.md
 )
 
 for path in "${unsupported_paths[@]}"; do
@@ -80,8 +86,9 @@ if rg -n '\[TODO:' skills; then
   exit 1
 fi
 
-rg -q '1% chance a skill applies' skills/using-superpowers-lite/SKILL.md
-rg -q 'not enabling a methodology bundle' skills/using-superpowers-lite/SKILL.md
+rg -q 'even a 1%' skills/using-ballclub/SKILL.md
+rg -q 'returned response is not automatically a hit' skills/using-ballclub/SKILL.md
+rg -q 'least-sufficient' skills/using-ballclub/SKILL.md
 
 if rg -n 'writing-plans|test-driven-development|requesting-code-review|receiving-code-review|using-git-worktrees' skills; then
   echo "automatic dependency on an undecided skill found" >&2
@@ -95,6 +102,18 @@ rg -q 'conclusions, evidence, risks, and relevant paths' skills/dispatching-para
 rg -q 'Keep final synthesis and decisions in the parent agent' skills/dispatching-parallel-agents/SKILL.md
 rg -q 'least sufficient' skills/capacity-routing/SKILL.md
 rg -q 'Do not implement routing as a global hook' skills/capacity-routing/SKILL.md
+rg -q 'plate appearance' skills/capacity-routing/SKILL.md
+rg -q 'Score unresolved appearances' skills/scorecard/SKILL.md
+
+node --input-type=module -e '
+  import fs from "node:fs";
+  const manifest = JSON.parse(fs.readFileSync("hooks/hooks.json", "utf8"));
+  const stops = manifest.hooks?.SubagentStop;
+  if (!Array.isArray(stops) || stops.length !== 1) throw new Error("missing SubagentStop collector");
+  if (!stops[0].matcher.includes("setter") || !stops[0].matcher.includes("coach")) {
+    throw new Error("collector matcher does not cover players and coaches");
+  }
+'
 
 for skill_file in skills/*/SKILL.md; do
   word_count="$(wc -w < "$skill_file")"

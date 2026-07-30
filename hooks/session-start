@@ -3,7 +3,7 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 plugin_root="$(cd "${script_dir}/.." && pwd)"
-skill_path="${plugin_root}/skills/using-superpowers-lite/SKILL.md"
+skill_path="${plugin_root}/skills/using-ballclub/SKILL.md"
 
 escape_for_json() {
   local value="$1"
@@ -29,10 +29,10 @@ emit_context() {
 
 skill_content=""
 if [[ ! -r "$skill_path" ]] || ! skill_content="$(cat "$skill_path" 2>/dev/null)" || [[ -z "$skill_content" ]]; then
-  emit_context $'superpowers-lite:bootstrap-unavailable\nThe using-superpowers-lite skill could not be read. Continue without the SessionStart bootstrap and use native skill discovery.'
+  emit_context $'ballclub:bootstrap-unavailable\nThe using-ballclub skill could not be read. Continue without the SessionStart bootstrap and use native skill discovery.'
   exit 0
 fi
 
-bootstrap_marker="superpowers-lite:bootstrap"
-printf -v bootstrap '<SUPERPOWERS_LITE>\n%s\n\nThe using-superpowers-lite skill below is already active for this session. Do not load it again. If there is even a 1%% chance another installed skill applies, invoke it before responding or acting. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n</SUPERPOWERS_LITE>' "$bootstrap_marker" "$skill_content"
+bootstrap_marker="ballclub:bootstrap"
+printf -v bootstrap '<BALLCLUB>\n%s\n\nThe using-ballclub skill below is already active for this session. Do not load it again. If there is even a 1%% chance another installed skill applies, invoke it before responding or acting. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n</BALLCLUB>' "$bootstrap_marker" "$skill_content"
 emit_context "$bootstrap"

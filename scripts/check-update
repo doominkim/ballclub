@@ -4,8 +4,8 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 plugin_root="$(cd "${script_dir}/.." && pwd)"
 package_file="${plugin_root}/package.json"
-remote_package_url="${SUPERPOWERS_LITE_REMOTE_PACKAGE_URL:-https://raw.githubusercontent.com/doominkim/superpowers-lite/main/package.json}"
-check_interval="${SUPERPOWERS_LITE_UPDATE_CHECK_INTERVAL_SECONDS:-86400}"
+remote_package_url="${BALLCLUB_REMOTE_PACKAGE_URL:-https://raw.githubusercontent.com/doominkim/ballclub/main/package.json}"
+check_interval="${BALLCLUB_UPDATE_CHECK_INTERVAL_SECONDS:-86400}"
 
 read_version() {
   node --input-type=module -e '
@@ -22,20 +22,20 @@ if [[ -z "$current_version" ]]; then
   exit 0
 fi
 
-if [[ "${SUPERPOWERS_LITE_DISABLE_UPDATE_CHECK:-false}" == "true" ]]; then
+if [[ "${BALLCLUB_DISABLE_UPDATE_CHECK:-false}" == "true" ]]; then
   printf '%s\n' "disabled|${current_version}|${current_version}"
   exit 0
 fi
 
-if [[ -n "${SUPERPOWERS_LITE_UPDATE_DATA_DIR:-}" ]]; then
-  data_dir="${SUPERPOWERS_LITE_UPDATE_DATA_DIR}"
+if [[ -n "${BALLCLUB_UPDATE_DATA_DIR:-}" ]]; then
+  data_dir="${BALLCLUB_UPDATE_DATA_DIR}"
 elif [[ -n "${PLUGIN_DATA:-}" ]]; then
-  data_dir="${PLUGIN_DATA}/superpowers-lite"
+  data_dir="${PLUGIN_DATA}/ballclub"
 elif [[ -n "${CLAUDE_PLUGIN_DATA:-}" ]]; then
-  data_dir="${CLAUDE_PLUGIN_DATA}/superpowers-lite"
+  data_dir="${CLAUDE_PLUGIN_DATA}/ballclub"
 else
   cache_base="${XDG_CACHE_HOME:-${HOME}/.cache}"
-  data_dir="${cache_base}/superpowers-lite"
+  data_dir="${cache_base}/ballclub"
 fi
 
 mkdir -p "$data_dir" 2>/dev/null || true
@@ -43,7 +43,7 @@ cache_file="${data_dir}/update-check"
 latest_version=""
 now="$(date +%s)"
 
-if [[ "${SUPERPOWERS_LITE_FORCE_UPDATE_CHECK:-false}" != "true" ]] && [[ -f "$cache_file" ]]; then
+if [[ "${BALLCLUB_FORCE_UPDATE_CHECK:-false}" != "true" ]] && [[ -f "$cache_file" ]]; then
   IFS='|' read -r checked_at cached_version < "$cache_file" || true
   if [[ "$checked_at" =~ ^[0-9]+$ ]] && [[ "$check_interval" =~ ^[0-9]+$ ]] && (( now - checked_at < check_interval )); then
     latest_version="${cached_version:-}"
@@ -51,8 +51,8 @@ if [[ "${SUPERPOWERS_LITE_FORCE_UPDATE_CHECK:-false}" != "true" ]] && [[ -f "$ca
 fi
 
 if [[ -z "$latest_version" ]]; then
-  if [[ -n "${SUPERPOWERS_LITE_REMOTE_PACKAGE_FILE:-}" ]]; then
-    latest_version="$(read_version "$SUPERPOWERS_LITE_REMOTE_PACKAGE_FILE" 2>/dev/null || true)"
+  if [[ -n "${BALLCLUB_REMOTE_PACKAGE_FILE:-}" ]]; then
+    latest_version="$(read_version "$BALLCLUB_REMOTE_PACKAGE_FILE" 2>/dev/null || true)"
   elif command -v curl >/dev/null 2>&1; then
     remote_json="$(curl --silent --show-error --fail --location --max-time 3 "$remote_package_url" 2>/dev/null || true)"
     if [[ -n "$remote_json" ]]; then

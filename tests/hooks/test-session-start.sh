@@ -7,7 +7,7 @@ update_hook="${repo_root}/hooks/session-update"
 wrapper="${repo_root}/hooks/run-hook.cmd"
 test_dir="$(mktemp -d)"
 trap 'rm -rf "$test_dir"' EXIT
-printf '%s\n' '{"version":"0.2.0"}' > "${test_dir}/remote.json"
+printf '%s\n' '{"version":"0.3.0"}' > "${test_dir}/remote.json"
 clean_home="${test_dir}/home"
 mkdir -p "$clean_home"
 
@@ -31,7 +31,7 @@ assert_json() {
     } else if (hasOwn("hookSpecificOutput") || hasOwn("additional_context")) {
       throw new Error("generic output included a second context field");
     }
-    if (!content?.includes("superpowers-lite:bootstrap")) throw new Error(`missing marker for ${mode}`);
+    if (!content?.includes("ballclub:bootstrap")) throw new Error(`missing marker for ${mode}`);
     if (!content.includes("If there is even a 1% chance another installed skill applies")) {
       throw new Error(`missing 1% skill invocation rule for ${mode}`);
     }
@@ -73,24 +73,24 @@ cp "$hook" "${broken_root}/hooks/session-start"
 broken_output="$(env -i PATH="${PATH:-}" HOME="$clean_home" bash "${broken_root}/hooks/session-start")"
 node --input-type=module -e '
   const parsed = JSON.parse(process.argv[1]);
-  if (!parsed.additionalContext?.includes("superpowers-lite:bootstrap-unavailable")) {
+  if (!parsed.additionalContext?.includes("ballclub:bootstrap-unavailable")) {
     throw new Error("missing graceful bootstrap fallback");
   }
 ' "$broken_output"
 
 update_output="$(
   env -i PATH="${PATH:-}" HOME="$clean_home" \
-  SUPERPOWERS_LITE_FORCE_UPDATE_CHECK=true \
-  SUPERPOWERS_LITE_UPDATE_DATA_DIR="${test_dir}/cache-generic" \
-  SUPERPOWERS_LITE_REMOTE_PACKAGE_FILE="${test_dir}/remote.json" \
+  BALLCLUB_FORCE_UPDATE_CHECK=true \
+  BALLCLUB_UPDATE_DATA_DIR="${test_dir}/cache-generic" \
+  BALLCLUB_REMOTE_PACKAGE_FILE="${test_dir}/remote.json" \
     bash "$update_hook"
 )"
 node --input-type=module -e '
   const parsed = JSON.parse(process.argv[1]);
   if (parsed.hookSpecificOutput || parsed.additional_context) throw new Error("generic update output mixed context shapes");
   const content = parsed.additionalContext;
-  if (!content?.includes("superpowers-lite:update-available")) throw new Error("missing update marker");
-  if (!content.includes("current_version=0.1.0") || !content.includes("latest_version=0.2.0")) {
+  if (!content?.includes("ballclub:update-available")) throw new Error("missing update marker");
+  if (!content.includes("current_version=0.2.0") || !content.includes("latest_version=0.3.0")) {
     throw new Error("missing update versions");
   }
   if (!content.includes("natural English") || !content.includes("current conversational context and tone")) {
@@ -98,27 +98,27 @@ node --input-type=module -e '
   }
   if (!content.includes("do not use a fixed template")) throw new Error("fixed-template wording was not prohibited");
   if (!content.includes("update_command=")) throw new Error("missing runtime update command");
-  if (content.includes("updating-superpowers-lite")) throw new Error("update manager leaked into skill routing");
+  if (content.includes("updating-ballclub")) throw new Error("update manager leaked into skill routing");
   if (!content.includes("Do not run update_command until the user explicitly approves")) throw new Error("missing approval boundary");
 ' "$update_output"
 
 claude_update_output="$(
   env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$repo_root" \
-  SUPERPOWERS_LITE_FORCE_UPDATE_CHECK=true \
-  SUPERPOWERS_LITE_UPDATE_DATA_DIR="${test_dir}/cache-claude" \
-  SUPERPOWERS_LITE_REMOTE_PACKAGE_FILE="${test_dir}/remote.json" \
+  BALLCLUB_FORCE_UPDATE_CHECK=true \
+  BALLCLUB_UPDATE_DATA_DIR="${test_dir}/cache-claude" \
+  BALLCLUB_REMOTE_PACKAGE_FILE="${test_dir}/remote.json" \
     bash "$update_hook"
 )"
 node --input-type=module -e '
   const parsed = JSON.parse(process.argv[1]);
   if (parsed.additionalContext || parsed.additional_context) throw new Error("Claude update output mixed context shapes");
   if (parsed.hookSpecificOutput?.hookEventName !== "SessionStart") throw new Error("missing Claude update event name");
-  if (!parsed.hookSpecificOutput?.additionalContext?.includes("superpowers-lite:update-available")) {
+  if (!parsed.hookSpecificOutput?.additionalContext?.includes("ballclub:update-available")) {
     throw new Error("missing Claude update marker");
   }
 ' "$claude_update_output"
 
-disabled_output="$(SUPERPOWERS_LITE_DISABLE_UPDATE_CHECK=true bash "$update_hook")"
+disabled_output="$(BALLCLUB_DISABLE_UPDATE_CHECK=true bash "$update_hook")"
 [[ -z "$disabled_output" ]]
 
 printf '%s\n' "session-start hook tests passed"

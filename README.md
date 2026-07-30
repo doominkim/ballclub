@@ -1,86 +1,112 @@
-# Superpowers Lite
+# Ballclub
+
+**English** | [한국어](README_KR.md)
 
 > **Upstream origin:** [obra/superpowers](https://github.com/obra/superpowers)
-> is the original project. Superpowers Lite is a reduced adaptation that keeps
-> its plugin, skill, hook, and script structure while removing mandatory
-> methodology chains.
+> is the original project. Ballclub retains adapted plugin, skill, hook, and
+> script infrastructure under its upstream MIT notice, but introduces its own
+> baseball-native multi-agent operating model.
 
-Superpowers Lite is a lightweight skill framework for Codex and Claude Code,
-derived from Superpowers. It keeps strict skill discovery without forcing a
-methodology bundle.
+**Build the lineup. Send agents to bat. Keep the score.**
 
-## Policy
+Ballclub is a multi-agent harness for Codex and Claude Code. The main agent is
+the manager, executable capacity profiles are players, Coach profiles are
+external advisers, and each completed subagent turn is a plate appearance.
+Ballclub routes work to an eligible player, records the appearance, requires
+verification before awarding a hit, and generates daily, weekly, and monthly
+team reports.
 
-- If there is even a 1% chance a skill applies, invoke it before responding or acting.
-- Invoking one skill does not activate TDD, design, planning, worktrees, review, or another skill.
-- Each methodology applies only when its own skill independently matches the task.
-- User instructions and repository rules take precedence.
+## The game model
+
+| Baseball | Agent operation |
+|---|---|
+| Manager | Main agent that owns goals, lineup, synthesis, and user communication |
+| Player | Setter, Batter, or Bench capacity profile allowed to execute an assignment |
+| Coach | External adviser that can refine decisions but cannot mutate or score work |
+| Lineup | Eligible, least-sufficient profile selection for the current work |
+| Plate appearance | One bounded subagent turn with completion and verification criteria |
+| Hit | Owned completion criteria passed focused verification |
+| Walk | Correct escalation instead of guessing |
+| Out | Failed or incomplete result without sound escalation |
+| Error | Completion claim that caused confirmed rework |
+| Home run | Predeclared high-impact appearance completed and verified without rework |
+| Salary | Recorded player tokens; Coach tokens are excluded |
+
+A returned response is never an automatic hit. Ambiguous appearances remain
+unscored until the manager can inspect verification evidence.
 
 ## Install
-
-One repository supplies the shared `skills/` directory and lifecycle hooks for
-both supported harnesses.
 
 ### Codex CLI and Codex app
 
 ```bash
-codex plugin marketplace add doominkim/superpowers-lite
-codex plugin add superpowers-lite@superpowers-lite-marketplace
+codex plugin marketplace add doominkim/ballclub
+codex plugin add ballclub@ballclub-marketplace
 ```
-
-Approve the bundled hooks when prompted, then start a new session. Codex IDE
-extensions do not currently expose plugins.
 
 ### Claude Code
 
 ```bash
-claude plugin marketplace add doominkim/superpowers-lite
-claude plugin install superpowers-lite@superpowers-lite-marketplace
+claude plugin marketplace add doominkim/ballclub
+claude plugin install ballclub@ballclub-marketplace
 ```
 
-## Session-start update flow
+Approve the bundled hooks and start a fresh session.
 
-The skill router bootstrap runs on `startup`, `clear`, and `compact`. A resumed
-session reuses its existing context and does not inject the bootstrap again.
-
-On a fresh `startup`, Superpowers Lite checks for updates at most once per day.
-It stays silent when current, offline, or unable to read the remote version.
-When a newer version exists, the agent asks in natural English adapted to the
-current conversational context and tone. For example:
+## Core loop
 
 ```text
-There's a newer version of superpowers-lite available. Want me to update it now? We'll need to start a fresh session afterward.
+manager reads the game state
+  -> builds an eligible lineup
+  -> defines a bounded plate appearance
+  -> sends a player to bat
+  -> records the returned appearance
+  -> verifies and officially scores it
+  -> updates the scorecard and next lineup
 ```
 
-Nothing changes until the user explicitly approves. Codex or Claude Code then
-uses its native plugin manager. A successful update ends with:
+`skills/using-ballclub` establishes the club rules. `capacity-routing` builds
+the lineup, dispatch skills define plate appearances, and `scorecard`
+generates scorecards. Existing development skills remain independently
+triggered; baseball terminology does not force TDD, planning, review, or any
+other methodology chain.
+
+## Reports
+
+Call the report skill explicitly:
 
 ```text
-Updated superpowers-lite completed. End this session and start a new one.
+$scorecard Show today's daily report.
 ```
 
-The current session must stop because its already-loaded skills and hooks may
-still be the old version. Disable checks with
-`SUPERPOWERS_LITE_DISABLE_UPDATE_CHECK=true`.
+Natural requests such as `Show today's scorecard`, `Show this week's team
+report`, and `Show this month's player salaries` trigger the same skill.
 
-## Repository structure
+Ballclub stores runtime data under `~/.codex/ballclub` by default. Override it
+with `BALLCLUB_DATA`.
 
-```text
-.agents/plugins/        Codex marketplace metadata
-.claude-plugin/         Claude Code plugin and marketplace metadata
-.codex-plugin/          Codex plugin metadata
-hooks/                  bootstrap and update SessionStart hooks
-skills/                 harness-neutral behavior modules
-scripts/                update and maintenance scripts
-tests/                  structure and behavior tests
+```bash
+node scripts/generate-report.mjs --period daily
+node scripts/generate-report.mjs --period weekly
+node scripts/generate-report.mjs --period monthly
 ```
 
-The package includes the mandatory skill router plus independently triggered
-skills for focused brainstorming, systematic debugging, capacity routing,
-completion verification, parallel dispatch or context isolation,
-implementation-only subagents, branch finishing, and skill authoring. Update
-handling lives in hooks and management scripts rather than the
-skill catalog. Skills never form an automatic cross-skill chain.
+Official scoring uses:
+
+```bash
+node scripts/score-appearance.mjs \
+  --event <appearance-json> \
+  --result <hit|walk|out|error> \
+  --home-run <true|false> \
+  --rbi <non-negative-integer> \
+  --evidence <verification-summary>
+```
+
+## Update lifecycle
+
+On a fresh startup Ballclub checks for a newer version at most once per day.
+It never updates without explicit approval, and a successful update requires a
+fresh session. Disable the check with `BALLCLUB_DISABLE_UPDATE_CHECK=true`.
 
 ## Verify
 
@@ -91,8 +117,7 @@ claude plugin validate .
 
 ## License and attribution
 
-Superpowers Lite is licensed under the MIT License. Infrastructure patterns and
-adapted portions originating from `obra/superpowers` retain their upstream MIT
-notice in `third_party/superpowers-LICENSE`. Superpowers is the original
-upstream project; Superpowers Lite is not presented as an independently
-originated framework.
+Ballclub is licensed under the MIT License. Adapted portions originating from
+`obra/superpowers` retain the upstream notice in
+`third_party/superpowers-LICENSE`. Ballclub is an independent project and is
+not affiliated with or endorsed by the upstream maintainers.

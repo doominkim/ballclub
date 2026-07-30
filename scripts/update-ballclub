@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-marketplace="superpowers-lite-marketplace"
+marketplace="ballclub-marketplace"
 harness="auto"
 approved="false"
 
 usage() {
-  printf '%s\n' "Usage: scripts/update-superpowers-lite --yes --harness codex|claude"
+  printf '%s\n' "Usage: scripts/update-ballclub --yes --harness codex|claude"
 }
 
 while (( $# > 0 )); do
@@ -49,12 +49,12 @@ case "$harness" in
   codex)
     require_command codex
     codex plugin marketplace upgrade "$marketplace"
-    codex plugin add "superpowers-lite@${marketplace}"
+    codex plugin add "ballclub@${marketplace}"
     ;;
   claude)
     require_command claude
     claude plugin marketplace update "$marketplace"
-    claude plugin update "superpowers-lite@${marketplace}"
+    claude plugin update "ballclub@${marketplace}"
     ;;
   *)
     printf '%s\n' "Unsupported harness: ${harness}" >&2
@@ -62,4 +62,4 @@ case "$harness" in
     ;;
 esac
 
-printf '%s\n' "Updated superpowers-lite completed. End this session and start a new one."
+printf '%s\n' "Updated ballclub completed. End this session and start a new one."

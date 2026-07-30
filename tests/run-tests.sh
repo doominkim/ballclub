@@ -8,6 +8,7 @@ bash tests/structure/test-structure.sh
 bash tests/hooks/test-session-start.sh
 bash tests/update/test-check-update.sh
 bash tests/update/test-updater.sh
+bash tests/scorebook/test-scorebook.sh
 bash scripts/check-versions.sh
 
 printf '%s\n' "all tests passed"

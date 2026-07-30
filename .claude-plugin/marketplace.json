@@ -1,15 +1,15 @@
 {
-  "name": "superpowers-lite-marketplace",
-  "description": "Development marketplace for Superpowers Lite.",
+  "name": "ballclub-marketplace",
+  "description": "Multi-agent harness marketplace for Ballclub.",
   "owner": {
     "name": "Dominic Kim",
     "email": "kimduumin@gmail.com"
   },
   "plugins": [
     {
-      "name": "superpowers-lite",
-      "description": "Lightweight development skills with selective activation.",
-      "version": "0.1.0",
+      "name": "ballclub",
+      "description": "Baseball-native multi-agent routing, scoring, and reporting.",
+      "version": "0.2.0",
       "source": "./",
       "author": {
         "name": "Dominic Kim",

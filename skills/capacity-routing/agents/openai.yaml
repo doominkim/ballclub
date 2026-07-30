@@ -1,4 +1,4 @@
 interface:
-  display_name: "Capacity Routing"
-  short_description: "Choose a capacity profile before delegation."
-  default_prompt: "Classify this task and select a suitable available capacity profile before delegating."
+  display_name: "Building the Lineup"
+  short_description: "Choose an eligible player for the next plate appearance."
+  default_prompt: "Classify the required operation boundary, then put the least-sufficient eligible player in the lineup."

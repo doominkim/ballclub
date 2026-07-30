@@ -1,4 +1,4 @@
 interface:
-  display_name: "Dispatching Parallel Agents"
-  short_description: "Isolate or parallelize independent bounded work."
-  default_prompt: "Use subagents only for independent parallel work or to isolate large disposable context, and return compact evidence-based results."
+  display_name: "Calling Multiple Players"
+  short_description: "Set independent plate appearances in parallel."
+  default_prompt: "Send multiple players to bat only for independent work or context isolation, then return compact evidence for official scoring."

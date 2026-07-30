@@ -1,48 +1,58 @@
 # Architecture
 
-Superpowers Lite keeps behavior separate from delivery:
+Ballclub separates its baseball operating model from harness delivery.
 
-1. `skills/` contains harness-neutral behavior.
-2. manifests expose the same skill directory to each harness.
-3. hooks or runtime adapters deliver the small bootstrap only where needed.
-4. references translate abstract actions to native harness tools.
-5. tests verify delivery without testing a mandatory methodology.
+## Core loop
 
-The bootstrap is intentionally small but keeps strict skill discovery: if there
-is even a 1% chance a skill applies, invoke it before responding or acting.
-Invocation only loads that skill. It does not automatically activate planning,
-worktrees, TDD, review, branch completion, or any other methodology.
-
-## Current skill catalog
-
-- `using-superpowers-lite`: strict discovery without workflow chaining
-- `brainstorming`: consequential ambiguity and approach selection
-- `systematic-debugging`: evidence-led root-cause diagnosis
-- `verification-before-completion`: fresh evidence before success claims
-- `dispatching-parallel-agents`: independent concurrent subtasks or isolated disposable context
-- `subagent-driven-development`: implementation roles only, without reviewers
-- `finishing-a-development-branch`: explicit branch integration requests
-- `writing-skills`: concise skill authoring and validation
-
-Every skill must match independently. The catalog does not include planning,
-TDD, worktree, or review skills, so selected skills must not depend on them.
-
-## Session lifecycle
-
-At a genuine session start, the delivery layer injects the bootstrap and runs a
-non-blocking version check. A newer version produces an update notice containing
-the approval boundary and exact management command. After approval, the runtime
-script delegates the change to the active harness package manager. Plugin
-lifecycle management never appears in the skill catalog.
+1. The manager keeps small or conversation-coupled work in the main thread.
+2. For substantial delegation, `capacity-routing` classifies the required
+   operation boundary and builds an eligible, least-sufficient lineup.
+3. A dispatch skill creates one or more bounded plate appearances with owned
+   outcomes, constraints, completion criteria, and focused verification.
+4. `SubagentStop` records player and Coach appearances without blocking return.
+5. The manager inspects evidence and applies the official score. Returned text
+   alone is not enough for a hit.
+6. `scorecard` aggregates daily, weekly, and monthly scorecards. Coach tokens
+   remain outside player salary and efficiency calculations.
 
 ```text
-session start -> bootstrap -> update check -> no update: continue
-                                      \-> update: ask user
-                                                   \-> decline: continue
-                                                   \-> approve: native update
-                                                               \-> end session
+game state -> lineup -> plate appearance -> record -> verify -> score -> report
 ```
 
-Compaction may re-inject the skill bootstrap but must not re-ask the update
-question. Network failures are silent, and version checks are cached for one
-day. The installed plugin directory is never modified directly by a hook.
+Runtime events and reports live under `~/.codex/ballclub` unless
+`BALLCLUB_DATA` overrides the data root.
+
+## Delivery layers
+
+- `skills/`: harness-neutral decisions and operating rules
+- `hooks/`: session bootstrap, update notices, and appearance collection
+- `scripts/`: deterministic collection, scoring, reporting, and updates
+- manifests: Codex and Claude Code plugin discovery
+- tests: structure, lifecycle, and scorebook contract verification
+
+The session bootstrap activates `using-ballclub`. It still requires strict
+skill discovery, but invoking a skill does not activate unrelated methodology.
+
+## Skill catalog
+
+- `using-ballclub`: manager, player, Coach, appearance, and scorebook rules
+- `capacity-routing`: lineup construction within allowed operation boundaries
+- `dispatching-parallel-agents`: independent or context-isolated batting order
+- `subagent-driven-development`: bounded implementation appearances
+- `scorecard`: official score review and period reports
+- `brainstorming`, `systematic-debugging`, `verification-before-completion`,
+  `finishing-a-development-branch`, `writing-skills`: independently triggered
+  development workflows
+
+## Scoring boundary
+
+Collection and scoring are deliberately separate. The hook writes an unscored
+appearance. Only evidence-backed review may turn it into a hit, walk, out, or
+error. A home run is a verified hit whose high-impact status was declared
+before the appearance and which required no rework.
+
+## Lifecycle
+
+At startup, Ballclub injects the bootstrap and performs a non-blocking version
+check. Updates require explicit approval and delegate to the active harness
+package manager. Hooks never mutate the installed plugin directory directly.

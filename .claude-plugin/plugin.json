@@ -1,18 +1,19 @@
 {
-  "name": "superpowers-lite",
-  "description": "Lightweight development skills with selective activation.",
-  "version": "0.1.0",
+  "name": "ballclub",
+  "description": "Baseball-native multi-agent routing, scoring, and reporting.",
+  "version": "0.2.0",
   "author": {
     "name": "Dominic Kim",
     "email": "kimduumin@gmail.com"
   },
-  "homepage": "https://github.com/doominkim/superpowers-lite",
-  "repository": "https://github.com/doominkim/superpowers-lite",
+  "homepage": "https://github.com/doominkim/ballclub",
+  "repository": "https://github.com/doominkim/ballclub",
   "license": "MIT",
   "keywords": [
-    "skills",
-    "development",
-    "workflow",
-    "lightweight"
+    "multi-agent",
+    "harness",
+    "baseball",
+    "routing",
+    "evaluation"
   ]
 }

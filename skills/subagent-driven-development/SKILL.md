@@ -3,9 +3,9 @@ name: subagent-driven-development
 description: Use when an approved or already-clear implementation contains multiple bounded coding tasks that benefit from focused implementation ownership and subagents are available.
 ---
 
-# Subagent-driven Implementation
+# Player-driven Implementation
 
-Delegate implementation roles only. The primary agent retains architecture,
+Delegate implementation plate appearances only. The manager retains architecture,
 integration, verification, and user communication.
 
 ## Scope
@@ -17,11 +17,11 @@ another skill.
 For each implementation task:
 
 1. Define the exact outcome, owned files or module, constraints, and focused verification.
-2. Prepare a brief using `references/implementer-prompt.md`.
-3. Assign one implementer. Tell it that it is not alone in the codebase and must
+2. Prepare a plate-appearance brief using `references/implementer-prompt.md`.
+3. Put one player at bat. Tell it that it is not alone in the codebase and must
    preserve and accommodate other changes.
 4. Let the implementer inspect, edit, and run focused tests within its ownership.
-5. Inspect the returned changes and evidence before integrating the result.
+5. Inspect the returned changes and evidence before scoring or integrating the result.
 6. Resolve cross-task conflicts and run combined verification in the primary agent.
 
 Dispatch implementation tasks sequentially by default. Run them concurrently

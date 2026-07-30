@@ -3,9 +3,9 @@ name: dispatching-parallel-agents
 description: Use when the user explicitly requests parallel agent work, when independent bounded subtasks can run concurrently, or when large disposable research, investigation, audit, or verification context should be isolated from the main conversation.
 ---
 
-# Dispatching Parallel Agents
+# Calling Multiple Players
 
-Use subagents only when independence, context isolation, or saved latency
+Send multiple players to bat only when independence, context isolation, or saved latency
 outweighs coordination cost and merge risk.
 
 For coding tasks that need implementation ownership, `subagent-driven-development`
@@ -35,22 +35,22 @@ Do not delegate small, tightly coupled, or stateful work that requires repeated
 clarification. Delegation does not guarantee a clean context by itself; use the
 host's minimal-context controls when available.
 
-For an isolated task:
+For an isolated plate appearance:
 
 1. Pass only required constraints and raw artifacts.
 2. Omit the parent's preferred answer when independence matters.
 3. Request conclusions, evidence, risks, and relevant paths instead of an activity log.
 4. Keep final synthesis and decisions in the parent agent.
 
-## Dispatch
+## Set the batting order
 
 1. Split work by outcome, not arbitrary file count.
-2. Give each agent explicit ownership and success criteria.
+2. Give each player an explicit plate appearance, ownership, and success criteria.
 3. State that other agents may be working in the same repository and that it
    must preserve and accommodate their changes.
 4. Provide only the context needed for its task; avoid leaking a desired conclusion.
 5. Continue useful local work that does not duplicate a delegated task.
-6. Collect all results before making an integration claim.
+6. Collect all appearances before making an integration claim or official score.
 
 Validate overlaps, contradictions, and combined behavior after results return.
 Parallel agent completion is not integration verification.
