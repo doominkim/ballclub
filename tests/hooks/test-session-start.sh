@@ -63,7 +63,7 @@ node --input-type=module -e '
   }
 ' "${repo_root}/hooks/hooks.json"
 
-generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" bash "$hook")"
+generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$repo_root" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
 claude="$(env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
 
 assert_json generic "$generic"
@@ -80,7 +80,7 @@ for source_file in "$repo_root"/rosters/claude/*.md; do
   cp "$source_file" "$clean_home/.claude/agents/"
 done
 
-configured_generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" bash "$hook")"
+configured_generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$repo_root" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
 configured_claude="$(env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
 assert_json generic "$configured_generic" false
 assert_json claude "$configured_claude" false
@@ -108,7 +108,7 @@ node --input-type=module -e '
   if (parsed.hookSpecificOutput || parsed.additional_context) throw new Error("generic update output mixed context shapes");
   const content = parsed.additionalContext;
   if (!content?.includes("ballclub:update-available")) throw new Error("missing update marker");
-  if (!content.includes("current_version=0.4.1") || !content.includes("latest_version=0.5.0")) {
+  if (!content.includes("current_version=0.4.2") || !content.includes("latest_version=0.5.0")) {
     throw new Error("missing update versions");
   }
   if (!content.includes("natural English") || !content.includes("current conversational context and tone")) {
