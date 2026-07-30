@@ -31,6 +31,15 @@ codex plugin marketplace add doominkim/ballclub
 codex plugin add ballclub@ballclub-marketplace
 ```
 
+In a fresh session, configure the actual player models once:
+
+```text
+$setup-ballclub
+```
+
+Setup installs the real model and reasoning-effort definitions for Setter, Batter, Bench, and
+Coach under `~/.codex/agents/`. It never silently overwrites a different existing file.
+
 ### Claude Code
 
 ```bash
@@ -96,6 +105,10 @@ Player classes are separated by their permitted operation boundary.
 | `Batter` | GPT-5.6 Terra | Bounded execution inside an already-defined scope | `1batter(xhigh)` to `4batter(low)` |
 | `Bench` | GPT-5.6 Luna | Investigation, classification, repeated verification, and evidence collection | `1bench(high)` to `3bench(low)` |
 | `Coach` | External adviser | Independent context analysis and decision-packet refinement; no mutation or official scoring | `chief-coach`, `coach`, `assistant-coach` |
+
+These are not documentation-only aliases. `$setup-ballclub` installs 15 Codex custom-agent TOML
+files with the same explicit model and effort values. Actual use still depends on model
+availability for the account or workspace.
 
 There is no single global profile ranking. A high-effort player in the wrong class is still
 ineligible. Ballclub chooses the operation boundary first, then the least-sufficient effort only
@@ -206,6 +219,11 @@ evolves independently in two places, routing formats and delegation conditions c
 
 User instructions and repository rules override Ballclub's shared defaults. Keep only the
 differences in host configuration instead of repeating the entire operating model.
+
+`$setup-ballclub` records hashes for Ballclub-managed profiles. It safely updates files previously
+installed by Ballclub, treats files with matching name, model, and effort as compatible while
+preserving their custom instructions, and keeps other unknown files as conflicts. Force replacement
+requires explicit approval and creates a backup first.
 
 Read [Architecture](docs/architecture.md), [Runtime flow](docs/runtime-flow.md), and
 [Game model](docs/game-model.md) for the deeper contracts.

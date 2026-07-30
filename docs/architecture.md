@@ -27,6 +27,7 @@ Runtime events and reports live under `~/.codex/ballclub` unless
 - `skills/`: harness-neutral decisions and operating rules
 - `hooks/`: session bootstrap, update notices, and appearance collection
 - `scripts/`: deterministic collection, scoring, reporting, and updates
+- `agents/codex/`: distributable custom-agent model and effort definitions
 - manifests: Codex and Claude Code plugin discovery
 - tests: structure, lifecycle, and scorebook contract verification
 
@@ -40,6 +41,7 @@ skill discovery, but invoking a skill does not activate unrelated methodology.
 - `dispatching-parallel-agents`: independent or context-isolated batting order
 - `subagent-driven-development`: bounded implementation appearances
 - `score`: official score review and period reports
+- `setup-ballclub`: conflict-safe installation and updates for Codex profiles
 - `brainstorming`, `systematic-debugging`, `verification-before-completion`,
   `finishing-a-development-branch`, `writing-skills`: independently triggered
   development workflows

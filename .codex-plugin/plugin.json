@@ -1,7 +1,7 @@
 {
   "name": "ballclub",
-  "version": "0.2.0",
-  "description": "A baseball-native multi-agent harness for lineup routing, verified scoring, and team reports.",
+  "version": "0.3.0",
+  "description": "A baseball-native multi-agent harness with model-defined rosters, lineup routing, verified scoring, and team reports.",
   "author": {
     "name": "Dominic Kim",
     "email": "kimduumin@gmail.com",
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Ballclub",
     "shortDescription": "Build the lineup, send agents to bat, keep score",
-    "longDescription": "A baseball-native multi-agent harness that selects an eligible player, records each plate appearance, verifies outcomes, and turns performance into daily, weekly, and monthly team reports.",
+    "longDescription": "A baseball-native multi-agent harness that installs model-defined player profiles, selects an eligible lineup, records each plate appearance, verifies outcomes, and turns performance into daily, weekly, and monthly team reports.",
     "developerName": "Dominic Kim",
     "category": "Developer Tools",
     "capabilities": [
@@ -30,6 +30,7 @@
       "Write"
     ],
     "defaultPrompt": [
+      "Use $setup-ballclub to install the actual Codex player model profiles.",
       "Build the least-sufficient lineup for this task.",
       "$score d — show today's Ballclub scorecard.",
       "Diagnose this problem and score the verified result."

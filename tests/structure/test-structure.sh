@@ -19,6 +19,7 @@ required_files=(
   scripts/collect-appearance.mjs
   scripts/generate-report.mjs
   scripts/score-appearance.mjs
+  scripts/setup-codex-agents.mjs
   skills/using-ballclub/SKILL.md
   skills/using-ballclub/agents/openai.yaml
   skills/brainstorming/SKILL.md
@@ -39,6 +40,8 @@ required_files=(
   skills/writing-skills/agents/openai.yaml
   skills/score/SKILL.md
   skills/score/agents/openai.yaml
+  skills/setup-ballclub/SKILL.md
+  skills/setup-ballclub/agents/openai.yaml
   package.json
 )
 
@@ -107,6 +110,40 @@ rg -q 'Score unresolved appearances' skills/score/SKILL.md
 rg -q '\$score d' skills/score/SKILL.md
 rg -q '\$score w' skills/score/SKILL.md
 rg -q '\$score m' skills/score/SKILL.md
+rg -q 'setup-codex-agents.mjs --check --json' skills/setup-ballclub/SKILL.md
+rg -q 'Never infer authorization to force-replace' skills/setup-ballclub/SKILL.md
+
+agent_profile_count="$(find agents/codex -maxdepth 1 -name '*.toml' -type f | wc -l | tr -d ' ')"
+[[ "$agent_profile_count" == "15" ]] || {
+  echo "expected 15 bundled Codex agent profiles, found $agent_profile_count" >&2
+  exit 1
+}
+
+for agent_file in agents/codex/*.toml; do
+  rg -q '^name = "' "$agent_file"
+  rg -q '^description = "' "$agent_file"
+  rg -q '^model = "' "$agent_file"
+  rg -q '^model_reasoning_effort = "' "$agent_file"
+  rg -q '^developer_instructions = """' "$agent_file"
+done
+
+python3 - <<'PY'
+from pathlib import Path
+import tomllib
+
+for agent_file in Path("agents/codex").glob("*.toml"):
+    with agent_file.open("rb") as handle:
+        value = tomllib.load(handle)
+    required = {"name", "description", "model", "model_reasoning_effort", "developer_instructions"}
+    missing = required.difference(value)
+    if missing:
+        raise SystemExit(f"{agent_file}: missing {sorted(missing)}")
+PY
+
+rg -q '^model = "gpt-5.6-sol"' agents/codex/1setter.toml
+rg -q '^model = "gpt-5.6-terra"' agents/codex/1batter.toml
+rg -q '^model = "gpt-5.6-luna"' agents/codex/1bench.toml
+rg -q '^sandbox_mode = "read-only"' agents/codex/coach.toml
 
 node --input-type=module -e '
   import fs from "node:fs";

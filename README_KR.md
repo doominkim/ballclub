@@ -31,6 +31,15 @@ codex plugin marketplace add doominkim/ballclub
 codex plugin add ballclub@ballclub-marketplace
 ```
 
+새 세션에서 실제 선수 모델을 한 번 설정하세요.
+
+```text
+$setup-ballclub
+```
+
+이 setup은 `~/.codex/agents/`에 Setter, Batter, Bench, Coach의 실제 model과
+reasoning effort를 설치합니다. 기존 파일이 다르면 자동으로 덮어쓰지 않습니다.
+
 ### Claude Code
 
 ```bash
@@ -97,6 +106,10 @@ Ballclub의 핵심은 **누구를 부를지**, **어디까지 맡길지**, **무
 | `Batter` | GPT-5.6 Terra | 이미 정해진 범위 안의 제한 실행 | `1batter(xhigh)` ~ `4batter(low)` |
 | `Bench` | GPT-5.6 Luna | 조사, 분류, 반복 검증, 근거 수집 | `1bench(high)` ~ `3bench(low)` |
 | `Coach` | 외부 자문 | 독립 맥락 분석과 결정 패킷 정제. 파일 수정과 공식 판정은 하지 않음 | `chief-coach`, `coach`, `assistant-coach` |
+
+이 표는 설명용 별칭이 아닙니다. `$setup-ballclub`이 같은 model과 effort가 명시된
+Codex custom-agent TOML 15개를 실제로 설치합니다. 계정이나 workspace에서 해당
+model을 사용할 수 있는지는 Codex의 model availability 정책을 따릅니다.
 
 `1setter`가 모든 상황의 1등 선수라는 뜻은 아닙니다. 전체 프로필에는 단일 순위가
 없습니다. 제한 실행이면 Batter 안에서, 근거 수집이면 Bench 안에서 가장 작은
@@ -215,6 +228,12 @@ Ballclub 규칙을 전역 `AGENTS.md`에 그대로 복사하지 마세요. 같�
 
 충돌 시에는 사용자 지시와 저장소 규칙이 Ballclub의 공통 규칙보다 우선합니다.
 호스트별 설정에는 공통 규칙을 반복하기보다 달라지는 부분만 두는 것을 권장합니다.
+
+`$setup-ballclub`은 Ballclub이 설치한 파일의 hash를 별도로 기록합니다. 이전에
+Ballclub이 설치한 파일은 새 버전으로 안전하게 갱신합니다. name·model·effort가 같고
+지침만 다른 사용자 파일은 `compatible`로 인정해 그대로 유지합니다. 실제 model
+정의가 다르거나 출처를 확인할 수 없는 파일은 `conflict`로 보존합니다. 강제 교체는
+명시적인 승인 뒤에만 수행하며 기존 파일을 먼저 백업합니다.
 
 더 깊게 보려면 [아키텍처](docs/architecture.md),
 [런타임 흐름](docs/runtime-flow.md), [경기 모델](docs/game-model.md)을 참고하세요.

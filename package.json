@@ -1,7 +1,7 @@
 {
   "name": "ballclub",
-  "version": "0.2.0",
-  "description": "Baseball-native multi-agent harness with lineup routing, verified scoring, and team reports.",
+  "version": "0.3.0",
+  "description": "Baseball-native multi-agent harness with model-defined rosters, lineup routing, verified scoring, and team reports.",
   "type": "module",
   "scripts": {
     "test": "bash tests/run-tests.sh",
