@@ -23,6 +23,7 @@ required_files=(
   scripts/setup-codex-agents.mjs
   scripts/setup-claude-agents.mjs
   scripts/setup-agent-files.mjs
+  scripts/bootstrap-roster.mjs
   scripts/install-launcher
   skills/using-ballclub/SKILL.md
   skills/using-ballclub/agents/openai.yaml
@@ -119,7 +120,9 @@ rg -q '\$score w' skills/score/SKILL.md
 rg -q '\$score m' skills/score/SKILL.md
 rg -q 'setup-codex-agents.mjs' skills/setup-ballclub/SKILL.md
 rg -q 'setup-claude-agents.mjs' skills/setup-ballclub/SKILL.md
+rg -q 'SessionStart' skills/setup-ballclub/SKILL.md
 rg -q 'not forced replacement' skills/setup-ballclub/SKILL.md
+! rg -q 'Run the roster interview|begin this interview|ask whether to install' skills/setup-ballclub/SKILL.md
 
 agent_profile_count="$(find agents/codex -maxdepth 1 -name '*.toml' -type f | wc -l | tr -d ' ')"
 [[ "$agent_profile_count" == "15" ]] || {

@@ -1,4 +1,4 @@
 interface:
   display_name: "Set Up Ballclub"
-  short_description: "Choose and install a model-defined Ballclub roster"
-  default_prompt: "Use $setup-ballclub to interview me about my manager and install the matching player roster."
+  short_description: "Inspect or repair the managed Ballclub roster"
+  default_prompt: "Use $setup-ballclub to inspect automatic roster synchronization and safely repair any missing, stale, or conflicting profiles."

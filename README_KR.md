@@ -31,30 +31,19 @@ codex plugin marketplace add doominkim/ballclub
 codex plugin add ballclub@ballclub-marketplace
 ```
 
-대화 입력 없이 바로 선수단 인터뷰를 시작하고 싶다면 저장소에서 런처를 한 번
-설치하세요.
+플러그인이 번들 선수단을 자동으로 관리합니다. 승인된 첫 `SessionStart`에서 Codex용
+프로필을 동기화하고, 로드된 선수 목록이 바뀐 경우에만 새 세션 시작을 안내합니다.
+선수단 인터뷰나 프로필별 설치 질문은 하지 않습니다.
+
+짧은 `ballclub` 명령으로 Codex를 열고 싶다면 선택적으로 런처를 설치할 수 있습니다.
 
 ```bash
 bash scripts/install-launcher
 ballclub
 ```
 
-`ballclub`은 Codex를 열면서 초기 설정 요청을 첫 프롬프트로 자동 제출합니다. Codex
-옵션도 그대로 전달할 수 있습니다. 예: `ballclub -C /path/to/project`
-
-새 세션에서 간단한 선수단 인터뷰를 한 번 진행하세요.
-
-```text
-$setup-ballclub
-```
-
-선수 프로필이 비어 있거나 일부만 설치된 경우에는 새 세션의 첫 대화에서 인터뷰가
-자동으로 시작됩니다. 먼저 직접 실행하려면 위 명령을 사용할 수 있습니다.
-
-어떤 하네스와 메인 감독 모델을 사용하는지 먼저 묻고, 답변에 맞는 Setter, Batter,
-Bench, Coach의 실제 model과 effort를 설치합니다. GPT 감독에는 `Sol / Terra / Luna`,
-Claude 감독에는 `Fable / Opus / Sonnet` 선수단을 추천합니다. 기존 파일이 다르면
-자동으로 덮어쓰지 않습니다.
+`ballclub`은 별도 설정 프롬프트를 주입하지 않고 Codex를 엽니다. Codex 옵션도 그대로
+전달할 수 있습니다. 예: `ballclub -C /path/to/project`
 
 ### Claude Code
 
@@ -65,8 +54,8 @@ claude plugin install ballclub@ballclub-marketplace
 
 표시되는 hook을 승인하고 새 세션을 시작하면 됩니다.
 
-Claude Code에서도 `$setup-ballclub`을 실행하면 `~/.claude/agents/`에 실제 선수
-프로필을 설치할 수 있습니다.
+승인된 첫 `SessionStart`에서 `~/.claude/agents/`의 번들 선수 프로필을 자동으로
+동기화합니다. 선수단 변경 안내가 나오면 새 세션을 시작하면 됩니다.
 
 ## 30초 설명
 
@@ -126,17 +115,16 @@ Ballclub의 핵심은 **누구를 부를지**, **어디까지 맡길지**, **무
 | `Bench` | GPT-5.6 Luna | 조사, 분류, 반복 검증, 근거 수집 | `1bench(high)` ~ `3bench(low)` |
 | `Coach` | 반대편 공급자의 외부 자문 | 독립 맥락 분석과 결정 패킷 정제. 파일 수정과 공식 판정은 하지 않음 | `chief-coach`, `coach`, `assistant-coach` |
 
-이 표는 GPT/Codex 감독용 기본 선수단이며 설명용 별칭이 아닙니다.
-`$setup-ballclub`이 model과 effort가 명시된 Codex custom-agent TOML 15개를 실제로
-설치합니다. Claude 감독을 선택하면 Setter는 Fable, Batter는 Opus, Bench는 Sonnet,
-Coach는 외부 GPT-5.6 Sol로 구성된 Claude Code subagent Markdown 15개를 설치합니다.
-계정이나 workspace에서 해당 model을 사용할 수 있는지는 각 하네스의 model
-availability 정책을 따릅니다.
+이 표는 GPT/Codex 감독용 기본 선수단이며 설명용 별칭이 아닙니다. Ballclub의
+`SessionStart` bootstrap이 model과 effort가 명시된 Codex custom-agent TOML 15개를
+동기화합니다. Claude Code에서는 Setter Fable, Batter Opus, Bench Sonnet, 외부
+GPT-5.6 Sol Coach로 구성된 subagent Markdown 15개를 동기화합니다. 계정이나
+workspace에서 해당 model을 사용할 수 있는지는 각 하네스의 model availability
+정책을 따릅니다.
 
-### 선수단 인터뷰
+### 관리형 선수단 수명주기
 
-설치기는 15명의 모델을 하나씩 묻지 않습니다. 먼저 주 하네스와 메인 감독 모델을
-확인한 다음, 선수군별 추천 구성을 한 번에 보여 드립니다.
+현재 하네스에 따라 다음 번들 선수단을 자동으로 선택합니다.
 
 | 메인 감독 | Setter | Batter | Bench | Coach |
 |---|---|---|---|---|
@@ -144,7 +132,9 @@ availability 정책을 따릅니다.
 | Claude Fable 또는 Opus | Claude Fable | Claude Opus | Claude Sonnet | 외부 GPT-5.6 Sol |
 
 같은 공급자의 모델만으로 판단과 검토를 반복하지 않도록 Coach는 반대편 공급자를
-사용합니다. 추천 구성이 맞는지 확인한 뒤에만 선수 프로필을 설치합니다.
+사용합니다. 누락된 프로필과 Ballclub이 관리하던 변경 전 파일은 자동으로
+갱신합니다. 사용자 지침이 추가된 compatible 파일과 model 정의가 다른 conflict
+파일은 그대로 보존합니다.
 
 `1setter`가 모든 상황의 1등 선수라는 뜻은 아닙니다. 전체 프로필에는 단일 순위가
 없습니다. 제한 실행이면 Batter 안에서, 근거 수집이면 Bench 안에서 가장 작은
@@ -264,11 +254,12 @@ Ballclub 규칙을 전역 `AGENTS.md`에 그대로 복사하지 마세요. 같�
 충돌 시에는 사용자 지시와 저장소 규칙이 Ballclub의 공통 규칙보다 우선합니다.
 호스트별 설정에는 공통 규칙을 반복하기보다 달라지는 부분만 두는 것을 권장합니다.
 
-`$setup-ballclub`은 Ballclub이 설치한 파일의 hash를 별도로 기록합니다. 이전에
-Ballclub이 설치한 파일은 새 버전으로 안전하게 갱신합니다. name·model·effort가 같고
-지침만 다른 사용자 파일은 `compatible`로 인정해 그대로 유지합니다. 실제 model
-정의가 다르거나 출처를 확인할 수 없는 파일은 `conflict`로 보존합니다. 강제 교체는
-명시적인 승인 뒤에만 수행하며 기존 파일을 먼저 백업합니다.
+Ballclub은 관리 대상 파일의 hash를 별도로 기록합니다. 이전에 Ballclub이 설치한
+파일은 새 버전으로 안전하게 갱신합니다. name·model·effort가 같고 지침만 다른 사용자
+파일은 `compatible`로 인정해 그대로 유지합니다. 실제 model 정의가 다르거나 출처를
+확인할 수 없는 파일은 `conflict`로 보존합니다. `$setup-ballclub`은 이런 충돌을
+진단·복구하는 명시적 도구이며, 강제 교체는 대상 파일별 승인 뒤에만 수행하고 기존
+파일을 먼저 백업합니다.
 
 더 깊게 보려면 [아키텍처](docs/architecture.md),
 [런타임 흐름](docs/runtime-flow.md), [경기 모델](docs/game-model.md)을 참고하세요.

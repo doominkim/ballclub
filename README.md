@@ -31,29 +31,19 @@ codex plugin marketplace add doominkim/ballclub
 codex plugin add ballclub@ballclub-marketplace
 ```
 
-To start the roster interview without typing into a blank conversation, install the launcher
-once from the repository:
+The plugin manages its bundled roster automatically. On the first approved `SessionStart`, it
+installs the matching Codex profiles and asks for a fresh session only when the loaded catalog
+changed. There is no roster interview or per-profile installation prompt.
+
+An optional launcher is available if you want a short `ballclub` command for opening Codex:
 
 ```bash
 bash scripts/install-launcher
 ballclub
 ```
 
-`ballclub` opens Codex and submits the setup request as the first prompt. Codex options are
-forwarded unchanged, for example `ballclub -C /path/to/project`.
-
-In a fresh session, run the roster interview once:
-
-```text
-$setup-ballclub
-```
-
-If player profiles are missing or only partially installed, the interview starts automatically
-on the first conversation in a new session. Use the command above to start it immediately.
-
-Setup first asks for the main harness and manager model, then installs the matching model and
-effort definitions. GPT managers get the recommended `Sol / Terra / Luna` roster; Claude
-managers get `Fable / Opus / Sonnet`. It never silently overwrites a different existing file.
+`ballclub` opens Codex without injecting a setup prompt. Codex options are forwarded unchanged,
+for example `ballclub -C /path/to/project`.
 
 ### Claude Code
 
@@ -64,8 +54,8 @@ claude plugin install ballclub@ballclub-marketplace
 
 Approve the bundled hooks and start a fresh session.
 
-Run `$setup-ballclub` in Claude Code to install the actual player profiles under
-`~/.claude/agents/`.
+The first approved `SessionStart` synchronizes the bundled Claude Code profiles under
+`~/.claude/agents/`. Start a fresh session if Ballclub reports that the roster changed.
 
 ## Ballclub in 30 seconds
 
@@ -124,16 +114,15 @@ Player classes are separated by their permitted operation boundary.
 | `Bench` | GPT-5.6 Luna | Investigation, classification, repeated verification, and evidence collection | `1bench(high)` to `3bench(low)` |
 | `Coach` | Cross-provider external adviser | Independent context analysis and decision-packet refinement; no mutation or official scoring | `chief-coach`, `coach`, `assistant-coach` |
 
-This is the default GPT/Codex roster, not a set of documentation-only aliases.
-`$setup-ballclub` installs 15 Codex custom-agent TOML files with explicit model and effort values.
-For a Claude manager it installs 15 Claude Code subagent Markdown files with Fable setters, Opus
-batters, Sonnet bench players, and external GPT-5.6 Sol coaches. Actual use still depends on model
-availability for the account or workspace.
+This is the default GPT/Codex roster, not a set of documentation-only aliases. Ballclub's
+`SessionStart` bootstrap synchronizes 15 Codex custom-agent TOML files with explicit model and
+effort values. Under Claude Code it synchronizes 15 subagent Markdown files with Fable setters,
+Opus batters, Sonnet bench players, and external GPT-5.6 Sol coaches. Actual use still depends on
+model availability for the account or workspace.
 
-### Roster interview
+### Managed roster lifecycle
 
-Setup does not ask for all 15 profiles individually. It asks for the main harness and manager,
-then confirms one grouped roster:
+The active harness selects one bundled roster automatically:
 
 | Main manager | Setter | Batter | Bench | Coach |
 |---|---|---|---|---|
@@ -141,7 +130,8 @@ then confirms one grouped roster:
 | Claude Fable or Opus | Claude Fable | Claude Opus | Claude Sonnet | external GPT-5.6 Sol |
 
 Coach deliberately uses the other provider so that planning and independent review do not share
-the same model family by default.
+the same model family by default. Missing profiles and unchanged Ballclub-managed profiles update
+automatically. Compatible user instructions and conflicting custom profiles are preserved.
 
 There is no single global profile ranking. A high-effort player in the wrong class is still
 ineligible. Ballclub chooses the operation boundary first, then the least-sufficient effort only
@@ -253,10 +243,11 @@ evolves independently in two places, routing formats and delegation conditions c
 User instructions and repository rules override Ballclub's shared defaults. Keep only the
 differences in host configuration instead of repeating the entire operating model.
 
-`$setup-ballclub` records hashes for Ballclub-managed profiles. It safely updates files previously
-installed by Ballclub, treats files with matching name, model, and effort as compatible while
-preserving their custom instructions, and keeps other unknown files as conflicts. Force replacement
-requires explicit approval and creates a backup first.
+Ballclub records hashes for managed profiles. It safely updates files previously installed by
+Ballclub, treats files with matching name, model, and effort as compatible while preserving their
+custom instructions, and keeps other unknown files as conflicts. `$setup-ballclub` is the explicit
+diagnostic and repair surface for those conflicts. Force replacement requires approval for the
+named files and creates a backup first.
 
 Read [Architecture](docs/architecture.md), [Runtime flow](docs/runtime-flow.md), and
 [Game model](docs/game-model.md) for the deeper contracts.

@@ -1,43 +1,38 @@
 ---
 name: setup-ballclub
-description: Interview the user about their main harness and manager model, then install, repair, or update Ballclub's model-defined Codex or Claude Code roster without overwriting custom agents. Use after installing or updating Ballclub, when configuring player models, or when Setter, Batter, Bench, or Coach profiles are missing or stale.
+description: Inspect or repair Ballclub's managed Codex or Claude Code roster when automatic SessionStart synchronization reports conflicts, degraded setup, missing profiles, or stale profiles, or when the user explicitly asks to customize or reset player models.
 ---
 
 # Set Up Ballclub
 
-Choose a roster from the manager's actual harness and model, then install it safely.
+Inspect or repair the roster without turning normal plugin installation into an interview.
 
-## Run the roster interview
+## Normal lifecycle
 
-Ask one question at a time. Skip any answer already known from the current runtime.
-When SessionStart includes `ballclub:setup-required`, begin this interview in the first user-facing response before handling an ordinary task. Do not wait for the user to name this skill. If the user declines, continue without asking again during that session.
+Ballclub bundles one roster per harness. Its `SessionStart` bootstrap detects Codex or Claude Code, installs missing managed profiles, updates unchanged Ballclub-managed profiles, and preserves compatible or conflicting user files. Do not ask about the harness, manager model, roster mapping, or installation during a healthy startup.
 
-1. Ask which main harness they use: Codex, Claude Code, or both.
-2. Ask which model runs the main manager.
-3. Present the matching roster and ask whether to install it:
+The bundled mappings are:
 
-   | Manager | Setter | Batter | Bench | Coach |
-   |---|---|---|---|---|
-   | GPT / Codex | GPT-5.6 Sol | GPT-5.6 Terra | GPT-5.6 Luna | external Claude Opus |
-   | Claude Fable or Opus | Claude Fable | Claude Opus | Claude Sonnet | external GPT-5.6 Sol |
+- Codex: Setter GPT-5.6 Sol, Batter GPT-5.6 Terra, Bench GPT-5.6 Luna, external Claude Opus Coach.
+- Claude Code: Setter Claude Fable, Batter Claude Opus, Bench Claude Sonnet, external GPT-5.6 Sol Coach.
 
-   Explain that effort tiers remain `Setter max..low`, `Batter xhigh..low`, and `Bench high..low`. Do not ask the user to choose all 15 profiles individually.
-4. If they reject the matching roster, collect one model family for each of Setter, Batter, Bench, and Coach. Do not write a custom roster until you have shown the exact generated mapping and received confirmation.
+## Inspect or repair
 
-## Install a bundled roster
+Resolve the plugin root as two directories above this `SKILL.md`. Use `scripts/setup-codex-agents.mjs` for Codex and `scripts/setup-claude-agents.mjs` for Claude Code.
 
-Resolve the plugin root as two directories above this `SKILL.md`. Use `scripts/setup-codex-agents.mjs` for Codex and `scripts/setup-claude-agents.mjs` for Claude Code. For `both`, run each flow separately.
-
-1. Inspect with `node <script> --check --json`.
-2. If every profile is `current` or `compatible`, do not write anything.
-3. If profiles are `missing` or `managed-update` and none are `conflict`, run `node <script> --install --json`.
-4. Preserve every `conflict`. Report only its filenames. Use `--install --force --json` only after explicit approval; it backs up replaced files first.
-5. Re-run `--check --json` and require all profiles to be `current` or `compatible`.
-6. Tell Codex users to start a fresh session. Claude Code detects changes within seconds unless its agents directory did not exist when the session started, in which case restart it.
+1. Detect the active harness from runtime context. Ask only if it genuinely cannot be determined.
+2. Run `node <script> --check --json` and report only non-current filenames and statuses.
+3. For `missing` or `managed-update`, run `node <script> --install --json`; this is the same safe managed synchronization used by SessionStart.
+4. Preserve every `compatible` and `conflict` file. Never convert a conflict into a bundled profile merely to make the check green.
+5. Use `--install --force --json` only after explicit approval for the exact conflict filenames. The command backs up replaced files first.
+6. Re-run `--check --json`. A repaired bundled roster must be `current` or intentionally `compatible`.
+7. Tell the user to start a fresh session before relying on newly installed or updated players.
 
 ## Boundaries
 
-- Invoking this skill authorizes missing and safely managed profile installation, not forced replacement.
+- Normal installation and managed updates belong to plugin bootstrap, not a conversational setup flow.
+- Invoking this skill authorizes diagnosis plus missing and safely managed profile repair, not forced replacement.
 - Never edit `config.toml`, `settings.json`, `AGENTS.md`, `CLAUDE.md`, or unrelated agents.
-- Do not claim account availability merely because a profile installed. Claude Fable requires an eligible account and supported Claude Code version.
+- Custom model mappings are user configuration. Show the exact files and mapping before editing, and preserve them as user-owned overrides afterward.
+- Do not claim model availability merely because a profile installed.
 - A matching name, model, and effort with different user instructions is `compatible` and stays untouched.

@@ -1,6 +1,6 @@
 {
   "name": "ballclub",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "A baseball-native multi-agent harness with model-defined rosters, lineup routing, verified scoring, and team reports.",
   "author": {
     "name": "Dominic Kim",
@@ -30,7 +30,7 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use $setup-ballclub to choose the manager model and install the matching player roster.",
+      "Use $setup-ballclub to inspect or repair managed roster synchronization.",
       "Build the least-sufficient lineup for this task.",
       "$score d — show today's Ballclub scorecard.",
       "Diagnose this problem and score the verified result."

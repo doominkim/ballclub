@@ -5,34 +5,33 @@ script_dir="$(cd "$(dirname "$0")" && pwd)"
 plugin_root="$(cd "${script_dir}/.." && pwd)"
 skill_path="${plugin_root}/skills/using-ballclub/SKILL.md"
 
-roster_setup_context() {
-  local harness source_dir target_dir extension
-  local expected=0
-  local missing=0
-
-  if [[ -z "${PLUGIN_ROOT:-}" ]] && [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]] && [[ -z "${COPILOT_CLI:-}" ]]; then
-    harness="Claude Code"
-    source_dir="${plugin_root}/rosters/claude"
-    target_dir="${CLAUDE_CONFIG_DIR:-${HOME}/.claude}/agents"
-    extension="md"
-  else
-    harness="Codex"
-    source_dir="${plugin_root}/agents/codex"
-    target_dir="${CODEX_HOME:-${HOME}/.codex}/agents"
-    extension="toml"
+roster_sync_context() {
+  local result status
+  if ! result="$(node "${plugin_root}/scripts/bootstrap-roster.mjs")"; then
+    printf '%s' "ballclub:roster-sync-degraded
+Ballclub could not run its managed roster bootstrap. Continue with the manager only and invoke setup-ballclub if the user asks to diagnose or repair the roster."
+    return
   fi
 
-  local source_file
-  for source_file in "${source_dir}"/*."${extension}"; do
-    [[ -e "$source_file" ]] || continue
-    expected=$((expected + 1))
-    [[ -f "${target_dir}/$(basename "$source_file")" ]] || missing=$((missing + 1))
-  done
-
-  if (( expected > 0 && missing > 0 )); then
-    printf '%s' "ballclub:setup-required
-Ballclub detected an incomplete ${harness} roster: ${missing} of ${expected} bundled profiles are missing. On the first user-facing response, invoke the setup-ballclub skill and begin its roster interview in the user's language before handling an ordinary task. Ask one question at a time, skip answers already known from the runtime, show the exact recommended roster, and do not install profiles until the user confirms. If the user explicitly declines setup, continue without asking again in this session."
-  fi
+  status="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.status || "degraded")' "$result" 2>/dev/null || printf degraded)"
+  case "$status" in
+    synced)
+      printf '%s' "ballclub:roster-synced
+Ballclub synchronized its bundled managed roster during SessionStart. The current session may have loaded the previous agent catalog, so tell the user briefly to start a fresh session before delegating to the updated players. Do not start a setup interview."
+      ;;
+    conflicts)
+      local conflicts
+      conflicts="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write((value.conflicts || []).join(", "))' "$result" 2>/dev/null || true)"
+      printf '%s' "ballclub:roster-conflicts
+Ballclub preserved custom or conflicting agent files during automatic roster sync: ${conflicts}. Continue without overwriting them. Invoke setup-ballclub only when the user asks to inspect or repair these conflicts; forced replacement still requires explicit approval."
+      ;;
+    current)
+      ;;
+    *)
+      printf '%s' "ballclub:roster-sync-degraded
+Ballclub could not complete its managed roster bootstrap. Continue with the manager only and invoke setup-ballclub if the user asks to diagnose or repair the roster."
+      ;;
+  esac
 }
 
 escape_for_json() {
@@ -60,6 +59,6 @@ if [[ ! -r "$skill_path" ]] || ! skill_content="$(cat "$skill_path" 2>/dev/null)
 fi
 
 bootstrap_marker="ballclub:bootstrap"
-setup_context="$(roster_setup_context)"
-printf -v bootstrap '<BALLCLUB>\n%s\n\nThe using-ballclub skill below is already active for this session. Do not load it again. If there is even a 1%% chance another installed skill applies, invoke it before responding or acting. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n\n%s\n</BALLCLUB>' "$bootstrap_marker" "$setup_context" "$skill_content"
+sync_context="$(roster_sync_context)"
+printf -v bootstrap '<BALLCLUB>\n%s\n\nThe using-ballclub skill below is already active for this session. Do not load it again. If there is even a 1%% chance another installed skill applies, invoke it before responding or acting. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n\n%s\n</BALLCLUB>' "$bootstrap_marker" "$sync_context" "$skill_content"
 emit_context "$bootstrap"

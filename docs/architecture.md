@@ -41,7 +41,7 @@ skill discovery, but invoking a skill does not activate unrelated methodology.
 - `dispatching-parallel-agents`: independent or context-isolated batting order
 - `subagent-driven-development`: bounded implementation appearances
 - `score`: official score review and period reports
-- `setup-ballclub`: manager-model interview plus conflict-safe Codex and Claude Code roster installation
+- `setup-ballclub`: explicit roster inspection, conflict repair, and custom-profile recovery
 - `brainstorming`, `systematic-debugging`, `verification-before-completion`,
   `finishing-a-development-branch`, `writing-skills`: independently triggered
   development workflows
@@ -55,6 +55,8 @@ before the appearance and which required no rework.
 
 ## Lifecycle
 
-At startup, Ballclub injects the bootstrap and performs a non-blocking version
-check. Updates require explicit approval and delegate to the active harness
-package manager. Hooks never mutate the installed plugin directory directly.
+At startup, Ballclub injects the bootstrap, synchronizes managed roster files,
+and performs a non-blocking version check. Roster sync copies from the immutable
+plugin payload into the harness agent directory; it never mutates the installed
+plugin directory. Plugin updates require explicit approval and delegate to the
+active harness package manager.

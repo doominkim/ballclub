@@ -18,7 +18,7 @@ node --input-type=module -e '
   import fs from "node:fs";
   const args = fs.readFileSync(process.argv[1], "utf8").trimEnd().split("\n");
   if (args[0] !== "-C" || args[1] !== "/tmp/example") throw new Error("Codex options were not forwarded");
-  if (!args[2]?.includes("Ballclub 선수단 초기 설정 인터뷰")) throw new Error("setup prompt was not injected");
+  if (args.length !== 2) throw new Error("launcher injected an unexpected setup prompt");
 ' "$capture_file"
 
 PATH="${fake_bin}:/usr/bin:/bin" CODEX_CAPTURE="$capture_file" \

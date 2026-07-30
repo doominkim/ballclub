@@ -1,6 +1,6 @@
 {
   "name": "ballclub",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "Baseball-native multi-agent harness with model-defined rosters, lineup routing, verified scoring, and team reports.",
   "type": "module",
   "scripts": {
