@@ -55,6 +55,32 @@ json_report="$(BALLCLUB_DATA="$test_dir/json-data" node "$repo_root/scripts/gene
 node -e 'JSON.parse(process.argv[1]);' "$json_report"
 [[ ! -e "$test_dir/json-data/reports/daily/2026-07-30.md" ]]
 
+json_report="$(BALLCLUB_DATA="$test_dir/data" node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30 --format json)"
+node -e '
+  const report = JSON.parse(process.argv[1]);
+  const expectedPlayers = [
+    "1setter", "2setter", "3setter", "4setter", "5setter",
+    "1batter", "2batter", "3batter", "4batter",
+    "1bench", "2bench", "3bench"
+  ];
+  if (report.players.length !== expectedPlayers.length) throw new Error("managed roster size is wrong");
+  if (report.players.map((player) => player.agentType).join(",") !== expectedPlayers.join(",")) {
+    throw new Error("managed roster order is wrong");
+  }
+  const called = report.players.find((player) => player.agentType === "4setter");
+  if (called?.pa !== 1 || called?.hits !== 1 || called?.tokens !== 1200) {
+    throw new Error("called player metrics changed");
+  }
+  for (const player of report.players.filter((player) => player.agentType !== "4setter")) {
+    if (player.pa || player.ab || player.hits || player.homeRuns || player.rbi || player.walks || player.strikeouts || player.errors || player.unscored || player.tokens || player.unscoredEvents.length) {
+      throw new Error(`uncalled player was not zeroed: ${player.agentType}`);
+    }
+  }
+  if (report.totals.pa !== 1 || report.totals.hits !== 1 || report.totals.tokens !== 1200) {
+    throw new Error("team totals must only reflect events");
+  }
+' "$json_report"
+
 claude_hook_input="$(node --input-type=module -e '
   const path = process.argv[1];
   process.stdout.write(JSON.stringify({

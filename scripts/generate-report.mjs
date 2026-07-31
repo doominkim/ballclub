@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
+  MANAGED_PLAYERS,
   PLAYER_RE,
   COACHES,
   collectJsonFiles,
@@ -228,7 +229,7 @@ const events = eventFiles.flatMap((filePath) => {
   }
 });
 
-const playerMap = new Map();
+const playerMap = new Map(MANAGED_PLAYERS.map((agentType) => [agentType, emptyPlayer(agentType)]));
 const manager = emptyPlayer('manager');
 const coachMap = new Map();
 const warningSet = new Set();
@@ -255,12 +256,7 @@ for (const event of events) {
   }
 }
 
-const players = [...playerMap.values()].sort(
-  (a, b) => b.hits - a.hits ||
-    (b.ab ? b.hits / b.ab : 0) - (a.ab ? a.hits / a.ab : 0) ||
-    b.pa - a.pa ||
-    a.agentType.localeCompare(b.agentType)
-);
+const players = MANAGED_PLAYERS.map((agentType) => playerMap.get(agentType));
 const coaches = [...coachMap.values()].sort(
   (a, b) => b.calls - a.calls || a.agentType.localeCompare(b.agentType)
 );

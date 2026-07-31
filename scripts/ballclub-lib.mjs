@@ -3,7 +3,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const PLAYER_RE = /^(?:[1-5]setter|[1-4]batter|[1-3]bench)$/;
+export const MANAGED_PLAYERS = [
+  '1setter', '2setter', '3setter', '4setter', '5setter',
+  '1batter', '2batter', '3batter', '4batter',
+  '1bench', '2bench', '3bench'
+];
+export const PLAYER_RE = new RegExp(`^(?:${MANAGED_PLAYERS.join('|')})$`);
 export const COACHES = new Set(['chief-coach', 'coach', 'assistant-coach']);
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
