@@ -20,6 +20,10 @@ Ballclub separates its baseball operating model from harness delivery.
    history adjusts effort only inside the already-eligible class; sparse or
    unscored data leaves the static routing rules unchanged.
 
+User-facing `선수교체:` output is emitted once only when the called
+player/profile composition changes; manager resumption and same-player work
+remain silent.
+
 When review is independent and Coach is available, its eligible player and
 Coach run concurrently. Coach is omitted only when unavailable or the reviews
 are not independent. Other phase appearances are sequential unless parallel

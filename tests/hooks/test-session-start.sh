@@ -7,7 +7,7 @@ update_hook="${repo_root}/hooks/session-update"
 wrapper="${repo_root}/hooks/run-hook.cmd"
 test_dir="$(mktemp -d)"
 trap 'rm -rf "$test_dir"' EXIT
-printf '%s\n' '{"version":"0.8.1"}' > "${test_dir}/remote.json"
+printf '%s\n' '{"version":"0.8.2"}' > "${test_dir}/remote.json"
 clean_home="${test_dir}/home"
 mkdir -p "$clean_home"
 
@@ -44,6 +44,11 @@ assert_json() {
     if (!content.includes("player assigned the review and Coach in parallel") ||
         !content.includes("Omit Coach only when it is")) {
       throw new Error(`missing default parallel Coach review for ${mode}`);
+    }
+    if (!content.includes("Only when the called player/profile composition actually") ||
+        !content.includes("선수교체: <profile or lineup>") ||
+        !content.includes("announce `라우팅: MAIN`, `LINEUP: MANAGER`")) {
+      throw new Error(`missing player-change-only announcement policy for ${mode}`);
     }
     if (content.includes("ballclub:setup-required") || content.includes("roster interview")) {
       throw new Error(`legacy setup interview leaked for ${mode}`);
@@ -177,7 +182,7 @@ node --input-type=module -e '
   if (parsed.hookSpecificOutput || parsed.additional_context) throw new Error("generic update output mixed context shapes");
   const content = parsed.additionalContext;
   if (!content?.includes("ballclub:update-available")) throw new Error("missing update marker");
-  if (!content.includes("current_version=0.8.0") || !content.includes("latest_version=0.8.1")) {
+  if (!content.includes("current_version=0.8.1") || !content.includes("latest_version=0.8.2")) {
     throw new Error("missing update versions");
   }
   if (!content.includes("natural English") || !content.includes("current conversational context and tone")) {

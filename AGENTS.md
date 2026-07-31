@@ -10,3 +10,7 @@
 - Keep the baseball model structural: main is the manager, executable profiles are players, Coach profiles are advisers, and one completed subagent turn is one plate appearance.
 - Never award a hit from a returned response alone; official scoring requires focused verification evidence.
 - Run `npm test` and both validators before claiming a change is complete.
+- Keep capacity routing internal unless the called player/profile composition
+  changes. Then announce it once as `선수교체: <profile or lineup> — <reason>`.
+  Do not announce unchanged follow-ups, retries, or the manager resuming
+  integration, verification, scoring, commit, or push.

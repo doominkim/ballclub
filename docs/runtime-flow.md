@@ -8,6 +8,10 @@ and scorebook boundaries. It does not force unrelated development workflows or
 manufacture a methodology chain. It does require an eligible player when work
 actually enters a design, implementation, or review phase regardless of size.
 
+Capacity routing is internal state. The manager emits one Korean `선수교체:`
+announcement only when the called player/profile composition changes. Same-player
+follow-ups and retries, and manager-owned integration or delivery, emit none.
+
 ## Managed roster bootstrap
 
 Codex discovers custom agents only from personal `~/.codex/agents/` or project

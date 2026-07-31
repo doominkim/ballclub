@@ -15,6 +15,9 @@ Ballclub uses baseball as its operating model rather than as a reporting skin.
   mutation boundaries, contracts, and completion criteria are fixed.
 - Chief Coach, Coach, and Assistant Coach are external advisers. They can
   inspect decision packets but cannot mutate work or receive a player score.
+- User-facing lineup announcements occur only when the called player/profile
+  composition changes: `선수교체: <profile or lineup> — <reason>`. Continuing,
+  retrying, or returning to manager-owned delivery is silent.
 
 Ballclub does not create a design, implementation, or review phase merely to
 form a chain. If work actually enters one of those phases, that

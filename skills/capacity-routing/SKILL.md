@@ -33,13 +33,14 @@ identities.
    effort for known, reversible work; raise it for uncertainty, blast radius,
    or costly failure.
    Parallelism is a dispatch decision, not a profile property.
-7. Announce the lineup decision before delegation:
+7. Track lineup decisions internally. Stay silent while the same player
+   continues, including follow-ups and retries. When the called player/profile
+   composition actually changes, announce once in Korean:
 
-   ```text
-   LINEUP: <player-profile>
-   REASON: <one concrete sentence>
-   PHASE: design | implementation | investigation | review
-   ```
+   `선수교체: <profile or lineup> — <short reason>`
+
+   Manager-owned integration, verification, scoring, commit, or push is not a
+   player change and gets no announcement.
 
 8. Define one appearance: phase, player, outcome, constraints, completion
    criteria, and focused verification. Keep

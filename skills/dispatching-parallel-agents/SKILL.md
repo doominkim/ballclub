@@ -17,6 +17,8 @@ dispatch an eligible player assigned the review and Coach concurrently against
 the same integrated state. Omit Coach only when unavailable or when the reviews
 are not independent. Coach supplies read-only advice and does not replace the
 player appearance or manager acceptance verification.
+If composition changes, announce once, for example
+`선수교체: 1bench + coach — 독립 병렬 리뷰`. Stay silent while it continues.
 
 ## Independence check
 

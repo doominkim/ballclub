@@ -1,6 +1,6 @@
 ---
 name: using-ballclub
-description: Establishes Ballclub's baseball-native multi-agent model and requires checking potentially relevant skills before responding or acting. Use at session start and whenever an agent must form a lineup, send a player to bat, or interpret an appearance.
+description: Use at session start or when forming a Ballclub lineup, calling a player, or interpreting an appearance.
 ---
 
 # Using Ballclub
@@ -44,6 +44,12 @@ appearance.
 11. When review is independent and Coach is available, dispatch an eligible
     player assigned the review and Coach in parallel. Omit Coach only when it is
     unavailable or the reviews are not independent. Coach remains advisory.
+12. Keep routing internal while the same lineup continues, including follow-ups
+    and retries. Only when the called player/profile composition actually
+    changes, announce once in Korean:
+    `선수교체: <profile or lineup> — <short reason>`. Manager-owned integration,
+    verification, scoring, commit, or push is not a player change; never
+    announce `라우팅: MAIN`, `LINEUP: MANAGER`, or a manager return.
 
 ## Scorebook
 

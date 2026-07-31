@@ -76,6 +76,10 @@ eligible player whenever work actually enters a design, implementation, or revie
 regardless of size. Conversation, status, routing, integration, and acceptance verification stay
 with the manager and are not phase appearances.
 
+Routing remains internal until the called player/profile composition changes. At that point the
+manager announces `선수교체: <profile or lineup> — <reason>` once. Continuing with the same player,
+retrying, or returning to manager-owned integration and delivery produces no routing banner.
+
 ## Highlights
 
 | Feature | What it does |
