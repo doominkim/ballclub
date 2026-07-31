@@ -3,7 +3,6 @@ name: 1bench
 description: Sonnet support profile at high effort for investigation and evidence collection only
 model: sonnet
 effort: high
-permissionMode: plan
 disallowedTools: Write, Edit, NotebookEdit
 ---
 

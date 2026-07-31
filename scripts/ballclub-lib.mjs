@@ -1,12 +1,27 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export const PLAYER_RE = /^(?:[1-5]setter|[1-4]batter|[1-3]bench)$/;
 export const COACHES = new Set(['chief-coach', 'coach', 'assistant-coach']);
 
-export function dataRoot() {
-  return process.env.BALLCLUB_DATA || path.join(os.homedir(), '.codex', 'ballclub');
+const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+const pluginRoot = path.resolve(scriptDir, '..');
+const runtimeCache = new Map();
+
+export function detectHarness(env = process.env) {
+  const requested = env.BALLCLUB_HARNESS?.trim().toLowerCase();
+  if (requested === 'codex' || requested === 'claude') return requested;
+  if (env.CLAUDE_PLUGIN_ROOT) return 'claude';
+  if (env.PLUGIN_ROOT || env.CODEX_THREAD_ID) return 'codex';
+  return 'codex';
+}
+
+export function dataRoot(harness = detectHarness()) {
+  if (process.env.BALLCLUB_DATA) return process.env.BALLCLUB_DATA;
+  const configDir = harness === 'claude' ? '.claude' : '.codex';
+  return path.join(os.homedir(), configDir, 'ballclub');
 }
 
 export function kstDateKey(value = new Date()) {
@@ -62,24 +77,35 @@ export function collectJsonFiles(rootDir) {
   return result.sort();
 }
 
-export function expectedRuntime(agentType) {
-  const match = /^(\d)(setter|batter|bench)$/.exec(agentType || '');
-  if (match) {
-    const [, number, family] = match;
-    const efforts = {
-      setter: { '1': 'max', '2': 'xhigh', '3': 'high', '4': 'medium', '5': 'low' },
-      batter: { '1': 'xhigh', '2': 'high', '3': 'medium', '4': 'low' },
-      bench: { '1': 'high', '2': 'medium', '3': 'low' }
+function readCanonicalRuntime(agentType, harness) {
+  const isPlayer = PLAYER_RE.test(agentType || '');
+  if (!isPlayer && !COACHES.has(agentType)) return null;
+
+  const filePath = harness === 'claude'
+    ? path.join(pluginRoot, 'rosters', 'claude', `${agentType}.md`)
+    : path.join(pluginRoot, 'agents', 'codex', `${agentType}.toml`);
+  if (!fs.existsSync(filePath)) return null;
+
+  const value = fs.readFileSync(filePath, 'utf8');
+  if (harness === 'claude') {
+    const read = (key) => {
+      const match = value.match(new RegExp(`^${key}:\\s*(?:"([^"]+)"|'([^']+)'|([^\\s#]+))\\s*$`, 'm'));
+      return match?.[1] || match?.[2] || match?.[3] || null;
     };
-    const models = {
-      setter: 'gpt-5.6-sol',
-      batter: 'gpt-5.6-terra',
-      bench: 'gpt-5.6-luna'
-    };
-    return { model: models[family], effort: efforts[family][number], provider: 'openai' };
+    return { model: read('model'), effort: read('effort'), provider: 'anthropic' };
   }
-  if (COACHES.has(agentType)) return { provider: 'anthropic' };
-  return null;
+
+  const read = (key) => value.match(new RegExp(`^${key}\\s*=\\s*"([^"]+)"\\s*$`, 'm'))?.[1] || null;
+  return { model: read('model'), effort: read('model_reasoning_effort'), provider: 'openai' };
+}
+
+export function expectedRuntime(agentType, harness = detectHarness()) {
+  const activeHarness = harness === 'claude' ? 'claude' : 'codex';
+  const cacheKey = `${activeHarness}:${agentType || ''}`;
+  if (!runtimeCache.has(cacheKey)) {
+    runtimeCache.set(cacheKey, readCanonicalRuntime(agentType, activeHarness));
+  }
+  return runtimeCache.get(cacheKey);
 }
 
 export function formatNumber(value) {

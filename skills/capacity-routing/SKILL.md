@@ -5,8 +5,8 @@ description: Use when the Ballclub manager must keep a substantial task in the d
 
 # Building the Lineup
 
-Choose capacity independently from the work phase. Design, implementation,
-investigation, and review are assignments in a handoff, not agent identities.
+Design, implementation, investigation, and review are assignments, not agent
+identities.
 
 ## Set the lineup
 
@@ -14,21 +14,24 @@ investigation, and review are assignments in a handoff, not agent identities.
    coupled to live conversation, or does not justify handoff overhead.
    For a substantive retained task, announce `LINEUP: MANAGER` so the direct
    manager appearance can be distinguished from routine conversation.
-2. Inventory only the capacity profiles exposed by the current harness. Do not
-   invent model names, effort levels, or profile aliases.
+2. Use only profiles exposed by the current harness. Do not invent aliases.
 3. Classify the required work boundary before comparing effort: full operation,
    bounded execution, support-only analysis, or independent coaching. Respect
-   each profile's declared tools, allowed work, and mutation authority. A
-   higher-effort profile in another class is not an upgrade if it lacks the
-   required capability.
-4. Assess eligible profiles for ambiguity, change breadth, reversibility,
-   security/financial/regulatory impact, failure cost, and repetition. Treat
-   high-impact flags as overrides; do not average them away.
-5. Choose the least sufficient profile within the eligible class. Prefer lower
-   effort for known, reversible work. Raise effort for material uncertainty,
-   blast radius, or costly failure. Prefer a lower-cost parallel profile for
-   clear repetitive work when the catalog provides one.
-6. Announce the lineup decision before delegation:
+   each profile's tools and mutation authority. Another class is not an upgrade.
+   Use Setter when unresolved design, interface, scope, or
+   policy decisions are materially likely. Use Batter only when those decisions,
+   mutation boundaries, contracts, and completion criteria are already fixed.
+4. Assess ambiguity, breadth, reversibility, security/financial/regulatory
+   impact, failure cost, and repetition. High-impact flags override averages.
+5. Consult comparable verified scorebook history after fixing the eligible
+   class. Repeated errors or confirmed rework favor higher effort or MAIN;
+   repeated hits without errors favor the least-sufficient lower effort. Ignore
+   unscored or incomparable appearances, never let history relax an authority
+   gate, and use the static risk rules when evidence is sparse.
+6. Choose the least sufficient eligible profile. Prefer lower effort for known,
+   reversible work; raise it for uncertainty, blast radius, or costly failure.
+   Parallelism is a dispatch decision, not a profile property.
+7. Announce the lineup decision before delegation:
 
    ```text
    LINEUP: MANAGER | <player-profile>
@@ -36,8 +39,8 @@ investigation, and review are assignments in a handoff, not agent identities.
    PHASE: design | implementation | investigation | review
    ```
 
-7. If delegating, define one plate appearance: phase, player, owned outcome,
-   relevant constraints, completion criteria, and focused verification. Keep
+8. Define one appearance: phase, player, outcome, constraints, completion
+   criteria, and focused verification. Keep
    official scoring, final synthesis, and user communication with the manager.
 
 ## Escalation
@@ -46,19 +49,14 @@ If the selected player discovers a missing decision, a larger blast radius, or
 a high-impact risk, stop the affected work and report the evidence to the main
 thread for rerouting. Do not silently upgrade or expand scope.
 
-When a player believes user judgment is needed for policy, scope, cost,
-irreversibility, or an external commitment, have it return a decision packet:
-the decision, options, recommendation, evidence, and why it cannot proceed.
-Before asking the user, the main may route that packet to an eligible
-independent coach. The coach checks whether existing context resolves it or
-whether the question can be narrowed. The coach advises; it does not mutate
-files, make the final decision, or become a mandatory hook for trivial gaps.
+For user-owned policy, scope, cost, irreversibility, or external commitments,
+return a decision packet with options, recommendation, evidence, and blocker.
+Before asking, the main may ask an eligible coach whether context resolves or
+narrows it. The coach advises but never mutates or decides.
 
 ## Boundaries
 
 - A user-selected player wins.
 - Do not implement routing as a global hook or force it on every message.
-- Do not make a profile name imply a specialty or require a separate reviewer,
-  planner, or implementer role.
 - Do not delegate merely because a task contains the words design, implement,
   or review.

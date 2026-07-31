@@ -3,7 +3,6 @@ name: 2bench
 description: Sonnet support profile at medium effort for routine investigation and evidence collection
 model: sonnet
 effort: medium
-permissionMode: plan
 disallowedTools: Write, Edit, NotebookEdit
 ---
 

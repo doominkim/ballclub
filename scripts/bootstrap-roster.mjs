@@ -4,16 +4,9 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { detectHarness } from './ballclub-lib.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-
-function detectHarness(env) {
-  const requested = env.BALLCLUB_HARNESS?.trim().toLowerCase();
-  if (requested === 'codex' || requested === 'claude') return requested;
-  if (env.PLUGIN_ROOT || env.CODEX_THREAD_ID) return 'codex';
-  if (env.CLAUDE_PLUGIN_ROOT) return 'claude';
-  return 'codex';
-}
 
 function emit(payload) {
   process.stdout.write(`${JSON.stringify(payload)}\n`);
@@ -50,11 +43,15 @@ const conflicts = summary.profiles
   .filter((profile) => profile.status === 'conflict')
   .map((profile) => profile.name);
 const installed = Array.isArray(summary.installed) ? summary.installed : [];
+const warnings = summary.profiles.flatMap((profile) =>
+  (profile.warnings || []).map((warning) => ({ profile: profile.name, ...warning }))
+);
 
 emit({
   harness,
   status: conflicts.length > 0 ? 'conflicts' : installed.length > 0 ? 'synced' : 'current',
   installed,
   conflicts,
+  warnings,
   targetDir: summary.targetDir,
 });

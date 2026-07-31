@@ -1,6 +1,6 @@
 {
   "name": "ballclub",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A baseball-native multi-agent harness with model-defined rosters, lineup routing, verified scoring, and team reports.",
   "author": {
     "name": "Dominic Kim",

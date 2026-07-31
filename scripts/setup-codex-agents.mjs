@@ -4,12 +4,13 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { dataRoot } from './ballclub-lib.mjs';
 import { runAgentSetup } from './setup-agent-files.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(scriptDir, '..');
 const codexHome = path.resolve(process.env.CODEX_HOME || path.join(os.homedir(), '.codex'));
-const dataRoot = path.resolve(process.env.BALLCLUB_DATA || path.join(os.homedir(), '.codex', 'ballclub'));
+const runtimeDataRoot = path.resolve(dataRoot('codex'));
 
 function readIdentity(value) {
   if (value === null) return null;
@@ -26,8 +27,8 @@ const status = await runAgentSetup({
   label: 'Codex',
   sourceDir: path.join(pluginRoot, 'agents', 'codex'),
   targetDir: path.join(codexHome, 'agents'),
-  statePath: path.join(dataRoot, 'config', 'codex-agent-state.json'),
-  backupRoot: path.join(dataRoot, 'backups', 'codex-agents'),
+  statePath: path.join(runtimeDataRoot, 'config', 'codex-agent-state.json'),
+  backupRoot: path.join(runtimeDataRoot, 'backups', 'codex-agents'),
   extension: '.toml',
   readIdentity,
 });

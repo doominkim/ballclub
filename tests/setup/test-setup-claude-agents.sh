@@ -21,10 +21,15 @@ node -e '
 ' "$install_json"
 
 printf '%s\n' '# user customization' >> "$CLAUDE_CONFIG_DIR/agents/1setter.md"
+sed -i.bak '/^effort: max$/a\
+disallowedTools: Bash' "$CLAUDE_CONFIG_DIR/agents/1setter.md"
 compatible_json="$(node "$repo_root/scripts/setup-claude-agents.mjs" --check --json)"
 node -e '
   const value = JSON.parse(process.argv[1]);
-  if (value.counts.compatible !== 1 || value.profiles.find((item) => item.name === "1setter.md")?.status !== "compatible") process.exit(1);
+  const setter = value.profiles.find((item) => item.name === "1setter.md");
+  if (value.counts.compatible !== 1 || setter?.status !== "compatible") process.exit(1);
+  const warning = setter.warnings?.find((item) => item.code === "security-drift");
+  if (!warning?.fields?.includes("disallowedTools")) process.exit(1);
 ' "$compatible_json"
 
 sed -i.bak 's/model: fable/model: opus/' "$CLAUDE_CONFIG_DIR/agents/1setter.md"
@@ -46,5 +51,11 @@ node -e '
 ' "$force_json"
 cmp "$repo_root/rosters/claude/1setter.md" "$CLAUDE_CONFIG_DIR/agents/1setter.md"
 find "$BALLCLUB_DATA/backups/claude-agents" -name 1setter.md -type f | rg -q .
+
+default_home="$test_root/default-home"
+env -u BALLCLUB_DATA HOME="$default_home" CLAUDE_CONFIG_DIR="$default_home/.claude" \
+  node "$repo_root/scripts/setup-claude-agents.mjs" --install --json >/dev/null
+[[ -f "$default_home/.claude/ballclub/config/claude-agent-state.json" ]]
+[[ ! -e "$default_home/.codex/ballclub/config/claude-agent-state.json" ]]
 
 printf '%s\n' "setup Claude Code agents tests passed"

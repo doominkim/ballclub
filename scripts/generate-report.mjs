@@ -111,17 +111,34 @@ function scoreRow(record) {
   return `| \`${record.agentType}\` | ${record.pa} | ${record.ab} | ${record.hits} | ${record.homeRuns} | ${record.rbi} | ${record.walks} | ${record.strikeouts} | ${record.errors} | ${formatAverage(record.hits, record.ab)} | ${formatNumber(record.tokens)} | ${tokenPerHit === null ? '-' : formatNumber(tokenPerHit)} | ${record.unscored} |`;
 }
 
+function modelMatches(expected, actual, harness) {
+  if (expected === actual) return true;
+  if (harness !== 'claude') return false;
+  const normalized = String(actual || '').toLowerCase();
+  return ['fable', 'opus', 'sonnet'].includes(expected) && (
+    normalized === expected ||
+    normalized.startsWith(`${expected}-`) ||
+    normalized.startsWith(`claude-${expected}-`)
+  );
+}
+
 function runtimeWarning(event) {
-  const expected = expectedRuntime(event.agentType);
+  const expected = expectedRuntime(event.agentType, event.harness);
   if (!expected) return null;
   const mismatches = [];
-  if (expected.model && event.model && event.model !== expected.model) {
+  if (expected.model && !event.model) {
+    mismatches.push(`model 미수집 (기대 ${expected.model})`);
+  } else if (expected.model && !modelMatches(expected.model, event.model, event.harness)) {
     mismatches.push(`model ${event.model} (기대 ${expected.model})`);
   }
-  if (expected.effort && event.effort && event.effort !== expected.effort) {
+  if (expected.effort && !event.effort) {
+    mismatches.push(`effort 미수집 (기대 ${expected.effort})`);
+  } else if (expected.effort && event.effort !== expected.effort) {
     mismatches.push(`effort ${event.effort} (기대 ${expected.effort})`);
   }
-  if (expected.provider && event.provider && event.provider !== expected.provider) {
+  if (expected.provider && !event.provider) {
+    mismatches.push(`provider 미수집 (기대 ${expected.provider})`);
+  } else if (expected.provider && event.provider !== expected.provider) {
     mismatches.push(`provider ${event.provider} (기대 ${expected.provider})`);
   }
   return mismatches.length ? `${event.agentType}: ${mismatches.join(', ')}` : null;
@@ -214,6 +231,9 @@ const warningSet = new Set();
 for (const event of events) {
   const warning = runtimeWarning(event);
   if (warning) warningSet.add(warning);
+  for (const collectionWarning of event.collection?.warnings || []) {
+    warningSet.add(`${event.agentType}: ${collectionWarning}`);
+  }
 
   if (PLAYER_RE.test(event.agentType)) {
     const player = applyScoredEvent(

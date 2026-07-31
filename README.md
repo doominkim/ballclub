@@ -65,9 +65,9 @@ user provides an objective
   -> manager chooses the required operation boundary
   -> manager selects the least-sufficient eligible player
   -> player receives a bounded appearance with completion and verification criteria
-  -> hook records runtime identity, metadata, and tokens
-  -> manager scores only from focused verification evidence
-  -> scorecard feeds the next lineup
+  -> harness adapter records runtime identity, metadata, and tokens
+  -> manager scores only from independent focused verification evidence
+  -> verified scorecard history adjusts effort inside the eligible class
 ```
 
 Ballclub does not delegate everything. Small or conversation-coupled work stays with the
@@ -133,10 +133,20 @@ The active harness selects one bundled roster automatically:
 Coach deliberately uses the other provider so that planning and independent review do not share
 the same model family by default. Missing profiles and unchanged Ballclub-managed profiles update
 automatically. Compatible user instructions and conflicting custom profiles are preserved.
+Claude Code plugin agents do not support `permissionMode`; their enforceable profile surface is
+`tools` and `disallowedTools`. Coach still needs `Bash` for its external-provider wrapper, so its
+no-mutation rule is an operating contract rather than an OS sandbox boundary.
+Compatible profiles whose supported security fields drift are preserved but surfaced as a
+`roster-security-drift` warning for explicit repair.
 
 There is no single global profile ranking. A high-effort player in the wrong class is still
 ineligible. Ballclub chooses the operation boundary first, then the least-sufficient effort only
 inside that class.
+
+Setter is required when unresolved design, interface, scope, or policy decisions are materially
+likely. Batter is eligible only when those decisions, mutation boundaries, contracts, and
+completion criteria are already fixed. This is an authority and decision boundary; shared tools
+do not make the two classes interchangeable.
 
 ### Plate-appearance contract
 
@@ -158,8 +168,9 @@ when independence or context isolation outweighs coordination and merge risk.
 returned response != hit
 ```
 
-The manager inspects current verification evidence before applying an official result. Ambiguous
-appearances remain pending.
+The manager inspects current verification evidence before applying an official result. A player
+transcript describes the attempt but cannot prove a hit by itself; the manager must rerun the
+relevant check or confirm current external state. Ambiguous appearances remain pending.
 
 | Result | Rule |
 |---|---|
@@ -176,12 +187,20 @@ manager appearance only for a substantive manager-only turn, skipping delegated 
 conversation turns. Both collectors store unscored events without blocking the return path.
 
 ```text
-${BALLCLUB_DATA:-~/.codex/ballclub}/events/YYYY-MM-DD/
+Codex:       ${BALLCLUB_DATA:-~/.codex/ballclub}/events/YYYY-MM-DD/
+Claude Code: ${BALLCLUB_DATA:-~/.claude/ballclub}/events/YYYY-MM-DD/
 ```
 
+`BALLCLUB_DATA` remains an explicit shared-root override. Ballclub does not automatically move
+legacy mixed data from `~/.codex/ballclub`; new default writes are separated by harness.
+
+Claude Code may fire `SubagentStop` before the final child transcript row is durable. Ballclub
+writes that appearance as pending runtime metadata, then reconciles model and usage from the
+parent Agent result at `Stop` using `agentId` plus `promptId`.
+
 Manager results are reported separately from the player leaderboard. Coach calls remain separate
-and excluded from salary and tokens per hit. Token volume is never converted into currency without
-an explicit price source.
+and excluded from salary and tokens per hit. Codex and Claude retain their raw usage components;
+`total_tokens` is normalized token volume, never currency cost.
 
 ## Scorecards
 
@@ -200,6 +219,10 @@ month's player salaries` trigger the same skill.
 
 Reports cover player and direct-manager appearances, at-bats, hits, average, home runs, errors,
 token salary, pending reviews, Coach calls, and declared-profile versus runtime-identity warnings.
+Before a later comparable assignment, verified history is used only inside the already-eligible
+class: repeated errors or rework favor higher effort or MAIN, while repeated hits without errors
+favor the least-sufficient lower effort. Sparse, unscored, or incomparable data leaves the static
+routing rules unchanged.
 
 Direct report generation and scoring are also available:
 
@@ -218,8 +241,10 @@ node scripts/score-appearance.mjs \
 
 ## Skills are play cards, not a ritual chain
 
-The session bootstrap activates `using-ballclub` and requires checking every potentially relevant
-skill. Invoking one skill does not automatically force TDD, brainstorming, planning, review, or a
+The session bootstrap activates `using-ballclub`. During Ballclub routing, delegation, scoring, or
+appearance interpretation, every Ballclub skill with even a 1% chance of applying must be checked.
+Unrelated work uses the host's normal skill discovery instead of making Ballclub a global trigger.
+Invoking one skill does not automatically force TDD, brainstorming, planning, review, or a
 worktree. Each workflow runs only when its own trigger applies.
 
 The core catalog is:

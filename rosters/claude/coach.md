@@ -1,9 +1,8 @@
 ---
 name: coach
-description: External GPT-5.6 Sol coach at high effort for complex context requirement conflicts and decision packets
+description: Sonnet read-only wrapper invoking external GPT-5.6 Sol at high effort for complex decision packets
 model: sonnet
 effort: low
-permissionMode: plan
 tools: Bash, Read, Grep, Glob
 ---
 

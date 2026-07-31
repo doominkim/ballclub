@@ -3,7 +3,6 @@ name: 3bench
 description: Sonnet support profile at low effort for simple repetitive evidence collection
 model: sonnet
 effort: low
-permissionMode: plan
 disallowedTools: Write, Edit, NotebookEdit
 ---
 

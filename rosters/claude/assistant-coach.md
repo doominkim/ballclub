@@ -1,9 +1,8 @@
 ---
 name: assistant-coach
-description: External GPT-5.6 Sol coach at medium effort for context summaries and question refinement
+description: Sonnet read-only wrapper invoking external GPT-5.6 Sol at medium effort for question refinement
 model: sonnet
 effort: low
-permissionMode: plan
 tools: Bash, Read, Grep, Glob
 ---
 

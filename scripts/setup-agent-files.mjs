@@ -24,6 +24,7 @@ export async function runAgentSetup({
   backupRoot,
   extension,
   readIdentity,
+  readSecurity = () => null,
 }) {
   const args = new Set(process.argv.slice(2));
   const install = args.has('--install');
@@ -77,6 +78,8 @@ export async function runAgentSetup({
       const previousHash = state.files[name] || null;
       const sourceIdentity = readIdentity(source);
       const targetIdentity = readIdentity(target);
+      const sourceSecurity = readSecurity(source);
+      const targetSecurity = readSecurity(target);
 
       let status = 'conflict';
       if (target === null) status = 'missing';
@@ -85,7 +88,14 @@ export async function runAgentSetup({
       else if (sourceIdentity && targetIdentity
         && Object.keys(sourceIdentity).every((key) => sourceIdentity[key] === targetIdentity[key])) status = 'compatible';
 
-      return { name, targetPath, source, target, sourceHash, targetHash, previousHash, status };
+      const warnings = [];
+      if (status === 'compatible' && sourceSecurity && targetSecurity) {
+        const fields = Object.keys(sourceSecurity)
+          .filter((key) => JSON.stringify(sourceSecurity[key]) !== JSON.stringify(targetSecurity[key]));
+        if (fields.length > 0) warnings.push({ code: 'security-drift', fields });
+      }
+
+      return { name, targetPath, source, target, sourceHash, targetHash, previousHash, status, warnings };
     }));
   }
 
@@ -96,7 +106,7 @@ export async function runAgentSetup({
       targetDir,
       statePath,
       counts,
-      profiles: profiles.map(({ name, status }) => ({ name, status })),
+      profiles: profiles.map(({ name, status, warnings }) => ({ name, status, warnings })),
       installed,
       backedUp,
     };
@@ -109,7 +119,12 @@ export async function runAgentSetup({
     }
     console.log(`Ballclub ${label} agents: ${summary.targetDir}`);
     console.log(`current=${summary.counts.current} compatible=${summary.counts.compatible} missing=${summary.counts.missing} managed-update=${summary.counts['managed-update']} conflict=${summary.counts.conflict}`);
-    for (const profile of summary.profiles) console.log(`${profile.status.padEnd(14)} ${profile.name}`);
+    for (const profile of summary.profiles) {
+      console.log(`${profile.status.padEnd(14)} ${profile.name}`);
+      for (const warning of profile.warnings) {
+        console.warn(`warning        ${profile.name} ${warning.code}: ${warning.fields.join(', ')}`);
+      }
+    }
     if (summary.installed.length > 0) console.log(`installed: ${summary.installed.join(', ')}`);
     if (summary.backedUp.length > 0) console.log(`backed up: ${summary.backedUp.join(', ')}`);
   }

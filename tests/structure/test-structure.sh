@@ -97,8 +97,9 @@ if rg -n '\[TODO:' skills; then
   exit 1
 fi
 
-rg -q 'even a 1%' skills/using-ballclub/SKILL.md
-rg -q 'returned response is not automatically a hit' skills/using-ballclub/SKILL.md
+rg -q 'every installed Ballclub skill with even a 1% chance' skills/using-ballclub/SKILL.md
+rg -q "For unrelated work, use the host's normal skill discovery" skills/using-ballclub/SKILL.md
+rg -q 'returned response or transcript alone is not automatically a hit' skills/using-ballclub/SKILL.md
 rg -q 'least-sufficient' skills/using-ballclub/SKILL.md
 
 if rg -n 'writing-plans|test-driven-development|requesting-code-review|receiving-code-review|using-git-worktrees' skills; then
@@ -106,15 +107,18 @@ if rg -n 'writing-plans|test-driven-development|requesting-code-review|receiving
   exit 1
 fi
 
-rg -q 'Do not create reviewer' skills/subagent-driven-development/SKILL.md
+rg -q 'worktrees are phases or' skills/using-ballclub/SKILL.md
+! rg -q 'reviewer agent|reviewer role|worktree role' skills/{capacity-routing,subagent-driven-development,dispatching-parallel-agents}/SKILL.md
 rg -q 'Context isolation' skills/dispatching-parallel-agents/SKILL.md
 rg -q 'Isolation can justify one subagent' skills/dispatching-parallel-agents/SKILL.md
 rg -q 'conclusions, evidence, risks, and relevant paths' skills/dispatching-parallel-agents/SKILL.md
 rg -q 'Keep final synthesis and decisions in the parent agent' skills/dispatching-parallel-agents/SKILL.md
 rg -q 'least sufficient' skills/capacity-routing/SKILL.md
 rg -q 'Do not implement routing as a global hook' skills/capacity-routing/SKILL.md
-rg -q 'plate appearance' skills/capacity-routing/SKILL.md
-rg -q 'Score unresolved appearances' skills/score/SKILL.md
+rg -q 'Define one appearance' skills/capacity-routing/SKILL.md
+rg -q 'comparable verified scorebook history' skills/capacity-routing/SKILL.md
+rg -q 'Use Setter when unresolved design' skills/capacity-routing/SKILL.md
+rg -q 'Score verified work promptly' skills/score/SKILL.md
 rg -q '\$score d' skills/score/SKILL.md
 rg -q '\$score w' skills/score/SKILL.md
 rg -q '\$score m' skills/score/SKILL.md
@@ -155,6 +159,9 @@ rg -q '^model: fable$' rosters/claude/1setter.md
 rg -q '^model: opus$' rosters/claude/1batter.md
 rg -q '^model: sonnet$' rosters/claude/1bench.md
 rg -q 'gpt-5.6-sol' rosters/claude/coach.md
+rg -q 'Sonnet read-only wrapper invoking external GPT-5.6 Sol' rosters/claude/coach.md
+! rg -q '^permissionMode:' rosters/claude
+rg -q '^disallowedTools: Write, Edit, NotebookEdit$' rosters/claude/1bench.md
 
 python3 - <<'PY'
 from pathlib import Path

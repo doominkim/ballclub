@@ -47,4 +47,10 @@ node -e '
 cmp "$repo_root/agents/codex/1setter.toml" "$CODEX_HOME/agents/1setter.toml"
 find "$BALLCLUB_DATA/backups/codex-agents" -name 1setter.toml -type f | rg -q .
 
+default_home="$test_root/default-home"
+env -u BALLCLUB_DATA HOME="$default_home" CODEX_HOME="$default_home/.codex" \
+  node "$repo_root/scripts/setup-codex-agents.mjs" --install --json >/dev/null
+[[ -f "$default_home/.codex/ballclub/config/codex-agent-state.json" ]]
+[[ ! -e "$default_home/.claude/ballclub/config/codex-agent-state.json" ]]
+
 printf '%s\n' "setup Codex agents tests passed"

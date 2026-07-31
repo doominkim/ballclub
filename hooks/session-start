@@ -6,7 +6,7 @@ plugin_root="$(cd "${script_dir}/.." && pwd)"
 skill_path="${plugin_root}/skills/using-ballclub/SKILL.md"
 
 roster_sync_context() {
-  local result status
+  local result status security_drift
   if ! result="$(node "${plugin_root}/scripts/bootstrap-roster.mjs")"; then
     printf '%s' "ballclub:roster-sync-degraded
 Ballclub could not run its managed roster bootstrap. Continue with the manager only and invoke setup-ballclub if the user asks to diagnose or repair the roster."
@@ -14,6 +14,11 @@ Ballclub could not run its managed roster bootstrap. Continue with the manager o
   fi
 
   status="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.status || "degraded")' "$result" 2>/dev/null || printf degraded)"
+  security_drift="$(node -e '
+    const value = JSON.parse(process.argv[1]);
+    const warnings = Array.isArray(value.warnings) ? value.warnings : [];
+    process.stdout.write(warnings.map(({ profile, fields = [] }) => `${profile} (${fields.join(", ")})`).join(", "));
+  ' "$result" 2>/dev/null || true)"
   case "$status" in
     synced)
       printf '%s' "ballclub:roster-synced
@@ -32,6 +37,12 @@ Ballclub preserved custom or conflicting agent files during automatic roster syn
 Ballclub could not complete its managed roster bootstrap. Continue with the manager only and invoke setup-ballclub if the user asks to diagnose or repair the roster."
       ;;
   esac
+
+  if [[ -n "$security_drift" ]]; then
+    printf '%s' "
+ballclub:roster-security-drift
+Ballclub preserved compatible custom agent instructions but detected drift in supported security fields: ${security_drift}. Do not overwrite automatically. Invoke setup-ballclub when the user asks to inspect or repair it."
+  fi
 }
 
 escape_for_json() {
@@ -60,5 +71,5 @@ fi
 
 bootstrap_marker="ballclub:bootstrap"
 sync_context="$(roster_sync_context)"
-printf -v bootstrap '<BALLCLUB>\n%s\n\nThe using-ballclub skill below is already active for this session. Do not load it again. If there is even a 1%% chance another installed skill applies, invoke it before responding or acting. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n\n%s\n</BALLCLUB>' "$bootstrap_marker" "$sync_context" "$skill_content"
+printf -v bootstrap '<BALLCLUB>\n%s\n\nThe using-ballclub skill below is already active for this session. Do not load it again. For Ballclub routing, delegation, scoring, or appearance interpretation, invoke any installed Ballclub skill with even a 1%% chance of applying. For unrelated work, use normal host skill discovery instead of treating Ballclub as a global trigger. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n\n%s\n</BALLCLUB>' "$bootstrap_marker" "$sync_context" "$skill_content"
 emit_context "$bootstrap"

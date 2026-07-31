@@ -7,7 +7,7 @@ update_hook="${repo_root}/hooks/session-update"
 wrapper="${repo_root}/hooks/run-hook.cmd"
 test_dir="$(mktemp -d)"
 trap 'rm -rf "$test_dir"' EXIT
-printf '%s\n' '{"version":"0.6.1"}' > "${test_dir}/remote.json"
+printf '%s\n' '{"version":"0.7.1"}' > "${test_dir}/remote.json"
 clean_home="${test_dir}/home"
 mkdir -p "$clean_home"
 
@@ -27,8 +27,9 @@ assert_json() {
       throw new Error(`${mode} output included a second context field`);
     }
     if (!content?.includes("ballclub:bootstrap")) throw new Error(`missing marker for ${mode}`);
-    if (!content.includes("If there is even a 1% chance another installed skill applies")) {
-      throw new Error(`missing 1% skill invocation rule for ${mode}`);
+    if (!content.includes("For Ballclub routing, delegation, scoring, or appearance interpretation") ||
+        !content.includes("installed Ballclub skill with even a 1% chance of applying")) {
+      throw new Error(`missing scoped 1% skill invocation rule for ${mode}`);
     }
     if (!content.includes("does not automatically activate TDD, design, planning, worktrees, review")) {
       throw new Error(`missing methodology isolation rule for ${mode}`);
@@ -63,11 +64,15 @@ node --input-type=module -e '
   }
 ' "${repo_root}/hooks/hooks.json"
 
-generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$repo_root" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
+generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$repo_root" bash "$hook")"
 claude="$(env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
+claude_with_plugin_root="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$repo_root" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
 
 assert_json generic "$generic"
 assert_json claude "$claude"
+assert_json claude "$claude_with_plugin_root" none
+[[ -f "$clean_home/.codex/ballclub/config/codex-agent-state.json" ]]
+[[ -f "$clean_home/.claude/ballclub/config/claude-agent-state.json" ]]
 
 wrapped_claude="$(env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$wrapper" session-start)"
 assert_json claude "$wrapped_claude" none
@@ -80,10 +85,23 @@ for source_file in "$repo_root"/rosters/claude/*.md; do
   cp "$source_file" "$clean_home/.claude/agents/"
 done
 
-configured_generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$repo_root" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
+configured_generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$repo_root" bash "$hook")"
 configured_claude="$(env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
 assert_json generic "$configured_generic" none
 assert_json claude "$configured_claude" none
+
+sed -i.bak '/^effort: max$/a\
+disallowedTools: Bash' "$clean_home/.claude/agents/1setter.md"
+security_drift_claude="$(env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$repo_root" bash "$hook")"
+assert_json claude "$security_drift_claude" none
+node --input-type=module -e '
+  const parsed = JSON.parse(process.argv[1]);
+  const content = parsed.hookSpecificOutput?.additionalContext || "";
+  if (!content.includes("ballclub:roster-security-drift")) throw new Error("missing security drift marker");
+  if (!content.includes("1setter.md (disallowedTools)")) throw new Error("missing security drift profile and fields");
+  if (!content.includes("Do not overwrite automatically")) throw new Error("missing security drift preservation rule");
+' "$security_drift_claude"
+cp "$repo_root/rosters/claude/1setter.md" "$clean_home/.claude/agents/1setter.md"
 
 sed -i.bak 's/model = "gpt-5.6-sol"/model = "gpt-5.6-terra"/' "$clean_home/.codex/agents/1setter.toml"
 conflict_generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$repo_root" bash "$hook")"
@@ -114,7 +132,7 @@ node --input-type=module -e '
   if (parsed.hookSpecificOutput || parsed.additional_context) throw new Error("generic update output mixed context shapes");
   const content = parsed.additionalContext;
   if (!content?.includes("ballclub:update-available")) throw new Error("missing update marker");
-  if (!content.includes("current_version=0.6.0") || !content.includes("latest_version=0.6.1")) {
+  if (!content.includes("current_version=0.7.0") || !content.includes("latest_version=0.7.1")) {
     throw new Error("missing update versions");
   }
   if (!content.includes("natural English") || !content.includes("current conversational context and tone")) {

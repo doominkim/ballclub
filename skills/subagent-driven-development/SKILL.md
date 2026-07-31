@@ -30,7 +30,6 @@ only when the user explicitly requests parallel execution and
 
 ## Boundaries
 
-- Do not create reviewer, specification reviewer, or re-review roles.
 - Do not delegate unresolved architecture or user decisions to an implementer.
 - Do not give two implementers overlapping file ownership.
 - Do not create worktrees automatically.

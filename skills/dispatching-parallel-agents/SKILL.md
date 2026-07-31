@@ -54,6 +54,3 @@ For an isolated plate appearance:
 
 Validate overlaps, contradictions, and combined behavior after results return.
 Parallel agent completion is not integration verification.
-
-Do not create reviewer, planner, or worktree roles automatically. Those require
-their own independently applicable skill or explicit user request.

@@ -1,50 +1,30 @@
 ---
 name: score
-description: Generate Ballclub daily, weekly, or monthly reports from recorded appearances. Use for 일봉, 주봉, 월봉, 구단 성적, 선수 호출 수, 안타, 타율, 홈런, 실책, token 연봉, 연봉 점유율, or 안타당 token. Exclude Coach profiles from salary calculations.
+description: Score a verified Ballclub appearance after integration, or generate daily, weekly, and monthly reports. Use for a resolved player result, 검수대기, 일봉, 주봉, 월봉, 구단 성적, 안타, 타율, 홈런, 실책, token 연봉, or 안타당 token.
 ---
 
 # Scorecard
 
-Generate one period-level report without listing individual task names. Treat
-`setter`, `batter`, and `bench` profiles as players in one leaderboard. Show
-verified direct manager work in a separate manager section. Treat `chief-coach`,
-`coach`, and `assistant-coach` as external advisers.
+Score verified work promptly and generate period reports without exposing task
+names by default. Keep Setter, Batter, and Bench in one player leaderboard,
+manager work in its own section, and Coach calls separate.
 
-## Generate a report
+## Score an appearance
 
-1. Resolve the plugin root as two directories above this `SKILL.md`.
-2. Map the explicit short form or natural request to one period:
-   - `$score d`, `일봉`, today, or a calendar day -> `daily`
-   - `$score w`, `주봉`, this week, or an ISO week -> `weekly`
-   - `$score m`, `월봉`, this month, or a calendar month -> `monthly`
-3. Run:
+After integration, find the corresponding unscored event. Read its transcript
+to understand the assignment and claimed result, but never award `hit` or
+`homeRun` from transcript content or a returned response alone. Require fresh,
+manager-owned verification such as a rerun test, inspected diff/build result,
+or confirmed external state. `walk`, `out`, and `error` also require focused
+evidence; leave ambiguous results unscored.
 
-   ```bash
-   node <plugin-root>/scripts/generate-report.mjs --period <daily|weekly|monthly> [--date YYYY-MM-DD]
-   ```
+Apply one result:
 
-4. Read the generated Markdown path printed by the command.
-5. Return the report and a clickable local file link. Keep task descriptions
-   hidden unless the user asks for evidence.
-
-For `$score d|w|m [date]`, treat the optional date as the period anchor. If the request gives a month but no day, use the first day of that month as
-`--date`. If it gives an ISO week, use any date in that week.
-
-## Score unresolved appearances
-
-Never turn a returned response into an automatic hit. If the report shows
-`검수대기`, inspect only the corresponding event's `transcriptPath` and final
-verification evidence. Apply a score only when the evidence is clear:
-
-- `hit`: the owned completion criteria passed focused verification.
-- `walk`: the player correctly stopped and escalated instead of guessing.
-- `out`: the owned result failed or remained incomplete without a sound
-  escalation.
-- `error`: the player claimed completion but caused confirmed rework.
-- `homeRun`: a predeclared high-impact or high-risk assignment became a
-  verified hit without rework.
-
-Record a score with:
+- `hit`: completion criteria passed focused verification;
+- `walk`: correct escalation prevented unsupported guessing;
+- `out`: work failed or remained incomplete without sound escalation;
+- `error`: a completion claim caused confirmed rework;
+- `homeRun`: a predeclared high-impact hit completed without rework.
 
 ```bash
 node <plugin-root>/scripts/score-appearance.mjs \
@@ -52,27 +32,36 @@ node <plugin-root>/scripts/score-appearance.mjs \
   --result <hit|walk|out|error> \
   --home-run <true|false> \
   --rbi <non-negative-integer> \
-  --evidence <short-verification-summary>
+  --evidence <manager-verification-summary>
 ```
 
-Leave ambiguous appearances unscored. After scoring, regenerate the report.
+`RBI` is the count of additional predeclared, independently verified outcomes
+delivered beyond the appearance's primary owned outcome. Default to `0`; never
+infer it from perceived impact.
 
-## Accounting rules
+## Generate a report
 
-- Count one collected player stop as one player plate appearance.
-- Count a substantive manager-only turn as one manager plate appearance. Do not
-  count a turn that sent a player to bat or only handled routine conversation.
-- Exclude unscored events from at-bats and batting average.
-- Calculate player and manager salary from recorded `total_tokens` only.
-- Never include Coach token usage in player salary, team salary, salary share,
-  or tokens per hit.
-- Show Coach calls separately without token columns.
-- Surface declared-profile versus actual model/provider mismatches as operating
-  warnings, not task details.
-- Do not infer currency cost from token volume.
+Map `$score d`, `$score w`, `$score m`, or the equivalent natural request to
+`daily`, `weekly`, or `monthly`, then run:
 
-## Empty data
+```bash
+node <plugin-root>/scripts/generate-report.mjs \
+  --period <daily|weekly|monthly> [--date YYYY-MM-DD]
+```
 
-If no records exist for the requested period, say that collection begins after
-the plugin hook is installed and trusted. Do not fabricate a sample season
-unless the user explicitly asks for one.
+For a month use its first day as the anchor; for an ISO week use any date in
+that week. Read the generated Markdown and return it with a clickable local
+file link. Hide task descriptions unless evidence is explicitly requested.
+
+## Accounting
+
+- One collected player stop is one player PA; a substantive manager-only turn
+  is one manager PA.
+- Hits, outs, and errors count as at-bats. Walks and unscored appearances do
+  not count as at-bats or reduce batting average.
+- Salary uses normalized recorded `total_tokens`. It is token volume, not
+  currency cost.
+- Exclude Coach usage from every salary and efficiency calculation; show only
+  Coach call counts.
+- Show declared-versus-runtime identity mismatches as operating warnings.
+- If no events exist, explain that collection starts after trusted hooks run.

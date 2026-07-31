@@ -1,9 +1,8 @@
 ---
 name: chief-coach
-description: External GPT-5.6 Sol coach at xhigh effort for high-risk irreversible or strategic decision packets
+description: Sonnet read-only wrapper invoking external GPT-5.6 Sol at xhigh effort for strategic decision packets
 model: sonnet
 effort: low
-permissionMode: plan
 tools: Bash, Read, Grep, Glob
 ---
 
