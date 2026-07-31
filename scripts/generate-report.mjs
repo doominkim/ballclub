@@ -18,7 +18,12 @@ function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const key = argv[index];
     if (!key.startsWith('--')) continue;
-    result[key.slice(2)] = argv[index + 1];
+    const name = key.slice(2);
+    if (name === 'write') {
+      result.write = true;
+      continue;
+    }
+    result[name] = argv[index + 1];
     index += 1;
   }
   return result;
@@ -279,8 +284,11 @@ const report = {
   reportPath
 };
 const markdown = makeMarkdown(report);
-fs.mkdirSync(reportDir, { recursive: true });
-fs.writeFileSync(reportPath, markdown, 'utf8');
+if (args.write) {
+  fs.mkdirSync(reportDir, { recursive: true });
+  fs.writeFileSync(reportPath, markdown, 'utf8');
+}
 
-if (args.format === 'json') process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
-else process.stdout.write(`${reportPath}\n`);
+if (args.write) process.stdout.write(`${reportPath}\n`);
+else if (args.format === 'json') process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+else process.stdout.write(markdown);

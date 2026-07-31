@@ -247,6 +247,10 @@ Direct report generation and scoring are also available:
 node scripts/generate-report.mjs --period daily
 node scripts/generate-report.mjs --period weekly
 node scripts/generate-report.mjs --period monthly
+# write the canonical Markdown artifact only when needed
+node scripts/generate-report.mjs --period daily --write
+# machine-readable output without writing an artifact
+node scripts/generate-report.mjs --period daily --format json
 
 node scripts/score-appearance.mjs \
   --event <appearance-json> \

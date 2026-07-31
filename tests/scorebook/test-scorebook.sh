@@ -40,10 +40,20 @@ BALLCLUB_DATA="$test_dir/data" node "$repo_root/scripts/score-appearance.mjs" \
   --event "$event_path" --result hit --home-run false --rbi 1 \
   --evidence "focused verification passed" >/dev/null
 
-report_path="$(BALLCLUB_DATA="$test_dir/data" node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30)"
+report_markdown="$(BALLCLUB_DATA="$test_dir/data" node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30)"
+report_path="$test_dir/data/reports/daily/2026-07-30.md"
+[[ ! -e "$report_path" ]]
+rg -q '\| 1 \| 1 \| 1 \| 1.000 \| 0 \| 0 \| 1,200 token \| 0 \|' <<< "$report_markdown"
+rg -q '`4setter`' <<< "$report_markdown"
+
+written_report_path="$(BALLCLUB_DATA="$test_dir/data" node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30 --write)"
+[[ "$written_report_path" == "$report_path" ]]
 [[ -f "$report_path" ]]
-rg -q '\| 1 \| 1 \| 1 \| 1.000 \| 0 \| 0 \| 1,200 token \| 0 \|' "$report_path"
 rg -q '`4setter`' "$report_path"
+
+json_report="$(BALLCLUB_DATA="$test_dir/json-data" node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30 --format json)"
+node -e 'JSON.parse(process.argv[1]);' "$json_report"
+[[ ! -e "$test_dir/json-data/reports/daily/2026-07-30.md" ]]
 
 claude_hook_input="$(node --input-type=module -e '
   const path = process.argv[1];
@@ -95,9 +105,10 @@ node -e '
   fs.writeFileSync(path.join(path.dirname(process.argv[1]), "claude-runtime-mismatch.json"), `${JSON.stringify(source)}\n`);
 ' "$claude_event_path"
 
-claude_report_path="$(BALLCLUB_DATA="$test_dir/claude-data" BALLCLUB_HARNESS=claude node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30)"
-rg -Fq '3setter: model claude-opus-4-1 (기대 fable), effort low (기대 high)' "$claude_report_path"
-if rg -Fq 'model claude-fable-5 (기대 fable)' "$claude_report_path"; then
+claude_report="$(BALLCLUB_DATA="$test_dir/claude-data" BALLCLUB_HARNESS=claude node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30)"
+[[ ! -e "$test_dir/claude-data/reports/daily/2026-07-30.md" ]]
+rg -Fq '3setter: model claude-opus-4-1 (기대 fable), effort low (기대 high)' <<< "$claude_report"
+if rg -Fq 'model claude-fable-5 (기대 fable)' <<< "$claude_report"; then
   printf '%s\n' 'compatible Claude model alias produced a warning' >&2
   exit 1
 fi
@@ -126,7 +137,8 @@ node -e '
   }
 ' "$ambiguous_event_path"
 ambiguous_report="$(BALLCLUB_DATA="$test_dir/ambiguous-data" BALLCLUB_HARNESS=claude node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30)"
-rg -Fq 'no message.id or requestId' "$ambiguous_report"
+[[ ! -e "$test_dir/ambiguous-data/reports/daily/2026-07-30.md" ]]
+rg -Fq 'no message.id or requestId' <<< "$ambiguous_report"
 
 mkdir -p "$test_dir/default-home"
 printf '%s' "$claude_hook_input" | HOME="$test_dir/default-home" CLAUDE_PLUGIN_ROOT="$repo_root" node "$repo_root/scripts/collect-appearance.mjs" >/dev/null
@@ -288,9 +300,9 @@ routine_hook_input="$(node --input-type=module -e '
 printf '%s' "$routine_hook_input" | BALLCLUB_DATA="$test_dir/data" node "$repo_root/scripts/collect-appearance.mjs" >/dev/null
 [[ ! -e "${test_dir}/data/events/2026-07-30/manager-turn-4.json" ]]
 
-report_path="$(BALLCLUB_DATA="$test_dir/data" node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30)"
-rg -q '\| 2 \| 2 \| 2 \| 1.000 \| 0 \| 0 \| 1,900 token \| 0 \|' "$report_path"
-rg -q '^## 감독 직접 수행$' "$report_path"
-rg -Fq '| `manager` | 1 | 1 | 1 |' "$report_path"
+report_markdown="$(BALLCLUB_DATA="$test_dir/data" node "$repo_root/scripts/generate-report.mjs" --period daily --date 2026-07-30)"
+rg -q '\| 2 \| 2 \| 2 \| 1.000 \| 0 \| 0 \| 1,900 token \| 0 \|' <<< "$report_markdown"
+rg -q '^## 감독 직접 수행$' <<< "$report_markdown"
+rg -Fq '| `manager` | 1 | 1 | 1 |' <<< "$report_markdown"
 
 printf '%s\n' "scorebook tests passed"

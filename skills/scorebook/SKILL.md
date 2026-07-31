@@ -51,9 +51,12 @@ node <plugin-root>/scripts/generate-report.mjs \
   --period <daily|weekly|monthly> [--date YYYY-MM-DD]
 ```
 
-For a month use its first day as the anchor; for an ISO week use any date in
-that week. Read the generated Markdown and return it with a clickable local
-file link. Hide task descriptions unless evidence is explicitly requested.
+For months use the first day; for ISO weeks use any date. The default command
+prints the Markdown scorecard inline; return it
+in the same conversation. Add `--write` only when a Markdown artifact is
+explicitly needed; it writes the canonical report path and prints that path.
+`--format json` prints JSON and does not write by default. Hide task
+descriptions unless evidence is explicitly requested.
 
 ## Accounting
 

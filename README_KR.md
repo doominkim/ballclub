@@ -232,6 +232,10 @@ Claude Code: /ballclub:scorebook m 2026-07
 node scripts/generate-report.mjs --period daily
 node scripts/generate-report.mjs --period weekly
 node scripts/generate-report.mjs --period monthly
+# Markdown 파일이 필요할 때만 canonical 경로에 저장
+node scripts/generate-report.mjs --period daily --write
+# 파일을 만들지 않는 JSON 출력
+node scripts/generate-report.mjs --period daily --format json
 
 node scripts/score-appearance.mjs \
   --event <appearance-json> \
