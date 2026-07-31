@@ -12,6 +12,12 @@ For coding tasks that need implementation ownership, `subagent-driven-developmen
 is the primary workflow. This skill adds concurrency to implementation only when
 the user explicitly requests parallel execution and both skills independently apply.
 
+For a review phase, when independent review is possible and Coach is available,
+dispatch an eligible player assigned the review and Coach concurrently against
+the same integrated state. Omit Coach only when unavailable or when the reviews
+are not independent. Coach supplies read-only advice and does not replace the
+player appearance or manager acceptance verification.
+
 ## Independence check
 
 A subtask is safe to parallelize when it has:
@@ -31,9 +37,12 @@ Isolation can justify one subagent even when there is no parallel speedup. Use
 it when intermediate work is large or disposable, an investigation should avoid
 the parent's conclusions, or the parent needs only a compact result.
 
-Do not delegate small, tightly coupled, or stateful work that requires repeated
-clarification. Delegation does not guarantee a clean context by itself; use the
-host's minimal-context controls when available.
+Size or coupling never waives a required design, implementation, or review
+player call. For small, tightly coupled, or stateful phase work, avoid
+parallelism and dispatch the required player sequentially. Keep non-phase
+conversation, status, routing, and integration with the manager. Delegation
+does not guarantee a clean context by itself; use the host's minimal-context
+controls when available.
 
 For an isolated plate appearance:
 
@@ -54,3 +63,5 @@ For an isolated plate appearance:
 
 Validate overlaps, contradictions, and combined behavior after results return.
 Parallel agent completion is not integration verification.
+The requirement to call a player for an existing phase does not itself require
+parallel dispatch.

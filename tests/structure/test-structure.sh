@@ -99,8 +99,15 @@ fi
 
 rg -q 'every installed Ballclub skill with even a 1% chance' skills/using-ballclub/SKILL.md
 rg -q "For unrelated work, use the host's normal skill discovery" skills/using-ballclub/SKILL.md
-rg -q 'returned response or transcript alone is not automatically a hit' skills/using-ballclub/SKILL.md
+rg -q 'response or transcript alone is not a hit' skills/using-ballclub/SKILL.md
 rg -q 'least-sufficient' skills/using-ballclub/SKILL.md
+rg -q 'actually enters one, send an eligible player regardless of phase size' skills/using-ballclub/SKILL.md
+rg -q 'does not replace a required player' skills/using-ballclub/SKILL.md
+rg -q 'Do not manufacture a design, implementation, or review phase' skills/using-ballclub/SKILL.md
+rg -q 'Manager verification is limited to rerunning or confirming predeclared' skills/using-ballclub/SKILL.md
+rg -q 'Correctness, regression, security, design tradeoff, code' skills/using-ballclub/SKILL.md
+rg -q 'player assigned the review and Coach in parallel' skills/using-ballclub/SKILL.md
+rg -q 'Omit Coach only when it is' skills/using-ballclub/SKILL.md
 
 if rg -n 'writing-plans|test-driven-development|requesting-code-review|receiving-code-review|using-git-worktrees' skills; then
   echo "automatic dependency on an undecided skill found" >&2
@@ -118,6 +125,18 @@ rg -q 'Do not implement routing as a global hook' skills/capacity-routing/SKILL.
 rg -q 'Define one appearance' skills/capacity-routing/SKILL.md
 rg -q 'comparable verified scorebook history' skills/capacity-routing/SKILL.md
 rg -q 'Use Setter when unresolved design' skills/capacity-routing/SKILL.md
+rg -q 'Every design, implementation,' skills/capacity-routing/SKILL.md
+rg -q 'or review phase requires a player appearance regardless of size' skills/capacity-routing/SKILL.md
+rg -q 'Phase-call requirements do not make parallel execution mandatory' skills/capacity-routing/SKILL.md
+rg -q 'single bounded' skills/subagent-driven-development/SKILL.md
+rg -q 'implementation task still requires one player appearance' skills/subagent-driven-development/SKILL.md
+rg -q 'Do not create a' skills/subagent-driven-development/SKILL.md
+rg -q 'review phase automatically' skills/subagent-driven-development/SKILL.md
+rg -q 'requested or separately determined' skills/subagent-driven-development/SKILL.md
+rg -q 'Omit Coach only when unavailable' skills/dispatching-parallel-agents/SKILL.md
+rg -q 'does not replace the' skills/dispatching-parallel-agents/SKILL.md
+rg -q 'Size or coupling never waives a required design' skills/dispatching-parallel-agents/SKILL.md
+rg -q 'dispatch the required player sequentially' skills/dispatching-parallel-agents/SKILL.md
 rg -q 'Score verified work promptly' skills/score/SKILL.md
 rg -q '\$score d' skills/score/SKILL.md
 rg -q '\$score w' skills/score/SKILL.md

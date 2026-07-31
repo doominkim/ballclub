@@ -62,6 +62,7 @@ The first approved `SessionStart` synchronizes the bundled Claude Code profiles 
 ```text
 user provides an objective
   -> manager reads goals, constraints, risk, and game state
+  -> actual design, implementation, or review phases require a player appearance
   -> manager chooses the required operation boundary
   -> manager selects the least-sufficient eligible player
   -> player receives a bounded appearance with completion and verification criteria
@@ -70,9 +71,10 @@ user provides an objective
   -> verified scorecard history adjusts effort inside the eligible class
 ```
 
-Ballclub does not delegate everything. Small or conversation-coupled work stays with the
-manager. A player goes to bat only when substantial independent work protects the main context
-or adds meaningful execution capacity.
+Ballclub does not manufacture a design-to-implementation-to-review chain. It does require an
+eligible player whenever work actually enters a design, implementation, or review phase,
+regardless of size. Conversation, status, routing, integration, and acceptance verification stay
+with the manager and are not phase appearances.
 
 ## Highlights
 
@@ -100,8 +102,9 @@ operating loop. They are feedback for the next lineup, not decorative call count
 ### Manager
 
 The main agent is the manager. It owns the objective, constraints, user communication, lineup,
-integration, official scoring, and next adjustment. When it retains and executes substantive work
-without a player, that work becomes a separate manager plate appearance.
+integration, official decisions, acceptance verification, scoring, and next adjustment. It does
+not replace the player's output for a required phase. Direct manager appearances may
+still cover substantive work outside mandatory design, implementation, and review phases.
 
 ### Roster
 
@@ -161,6 +164,10 @@ One completed player turn is one player plate appearance. Each delegated appeara
 
 Overlapping work and shared unresolved decisions stay sequential. Parallel players are used only
 when independence or context isolation outweighs coordination and merge risk.
+During review, when independent review is possible and Coach is available, an eligible player
+assigned the review and Coach run in parallel. Coach is omitted only when unavailable or when the
+reviews are not independent. It remains advisory and does not replace the player appearance or
+manager acceptance verification. Phase-call requirements do not otherwise imply parallelism.
 
 ### Verification and official scoring
 
@@ -168,9 +175,10 @@ when independence or context isolation outweighs coordination and merge risk.
 returned response != hit
 ```
 
-The manager inspects current verification evidence before applying an official result. A player
-transcript describes the attempt but cannot prove a hit by itself; the manager must rerun the
-relevant check or confirm current external state. Ambiguous appearances remain pending.
+The manager reruns or confirms only the predeclared acceptance checks before applying an official
+result. Correctness, regression, security, design tradeoff, code quality, and diff judgment form a
+review phase and require an eligible player. A transcript alone cannot prove a hit; ambiguous
+appearances remain pending.
 
 | Result | Rule |
 |---|---|
@@ -245,7 +253,9 @@ The session bootstrap activates `using-ballclub`. During Ballclub routing, deleg
 appearance interpretation, every Ballclub skill with even a 1% chance of applying must be checked.
 Unrelated work uses the host's normal skill discovery instead of making Ballclub a global trigger.
 Invoking one skill does not automatically force TDD, brainstorming, planning, review, or a
-worktree. Each workflow runs only when its own trigger applies.
+worktree. Each workflow runs only when its own trigger applies. The phase-call rule applies only
+to design, implementation, or review phases that actually exist; it does not create
+those phases or a mandatory methodology chain.
 
 The core catalog is:
 

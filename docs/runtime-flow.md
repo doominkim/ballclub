@@ -4,7 +4,9 @@
 
 `hooks/session-start` injects `using-ballclub` at startup, clear, and compact.
 The bootstrap establishes the manager, player, Coach, lineup, plate appearance,
-and scorebook boundaries. It does not force unrelated development workflows.
+and scorebook boundaries. It does not force unrelated development workflows or
+manufacture a methodology chain. It does require an eligible player when work
+actually enters a design, implementation, or review phase regardless of size.
 
 ## Managed roster bootstrap
 
@@ -48,12 +50,15 @@ Collection errors are written separately and never block the subagent return.
 
 ## Review and scoring
 
-The manager compares the owned completion criteria with fresh verification it
-owns, such as a rerun check or confirmed external state. A transcript may
-explain the attempt but cannot establish a hit alone. Scoring should happen
-after integration when evidence is available rather than waiting for a report
-request. `scripts/score-appearance.mjs` applies official player and manager
-results while rejecting Coach scoring and paths outside the harness data root.
+When review exists, the manager routes it to an eligible player. If review is
+independent and Coach is available, dispatch both in parallel. Omit Coach only
+when unavailable or non-independent; it never substitutes for the player.
+
+The manager reruns or confirms predeclared acceptance checks. Correctness,
+regression, security, design tradeoff, code quality, and diff judgment require
+a player review appearance. A transcript cannot establish a hit alone. Score
+after integration when evidence is available. `scripts/score-appearance.mjs`
+applies official results while rejecting Coach scoring and out-of-root paths.
 
 ## Reporting
 

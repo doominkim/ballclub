@@ -5,9 +5,9 @@ Ballclub uses baseball as its operating model rather than as a reporting skin.
 ## Participants
 
 - The main agent is the manager. It owns the game objective, constraints,
-  lineup, official decisions, integration, and user communication. A
-  substantive task it retains and executes without a player is a manager plate
-  appearance.
+  lineup, official decisions, integration, acceptance verification, scoring,
+  and user communication. It does not replace a required player's
+  design, implementation, or review output.
 - Setter, Batter, and Bench profiles are players. Their declared operation
   boundary determines eligibility; effort is compared only within an eligible
   class. Setter owns work where unresolved design, interface, scope, or policy
@@ -15,6 +15,14 @@ Ballclub uses baseball as its operating model rather than as a reporting skin.
   mutation boundaries, contracts, and completion criteria are fixed.
 - Chief Coach, Coach, and Assistant Coach are external advisers. They can
   inspect decision packets but cannot mutate work or receive a player score.
+
+Ballclub does not create a design, implementation, or review phase merely to
+form a chain. If work actually enters one of those phases, that
+phase requires an eligible player appearance regardless of size. Conversation,
+status, routing, integration, and acceptance verification are not phase
+appearances. For independent review with Coach available, an eligible player
+assigned the review and Coach run in parallel; omit Coach only when unavailable
+or non-independent. Coach never replaces the player or acceptance verification.
 
 ## Plate appearance contract
 
@@ -40,9 +48,10 @@ Every delegated player turn declares:
 Returning an answer closes an appearance but does not award a hit. When
 evidence is insufficient, the record remains unscored.
 
-Transcript content alone cannot prove a hit or home run. The manager must own
-fresh focused verification, such as rerunning the relevant check or confirming
-current external state. Walks and unscored appearances do not count as at-bats.
+Transcript content alone cannot prove a hit or home run. The manager may only
+rerun or confirm predeclared acceptance checks. Correctness, regression,
+security, design tradeoff, code quality, and diff judgment require a player
+review appearance. Walks and unscored appearances do not count as at-bats.
 RBI counts additional predeclared, independently verified outcomes delivered
 beyond the primary owned outcome; it defaults to zero and is never inferred.
 

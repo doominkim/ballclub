@@ -1,6 +1,6 @@
 ---
 name: capacity-routing
-description: Use when the Ballclub manager must keep a substantial task in the dugout or build a lineup from eligible, least-sufficient capacity profiles. Trigger for model or effort selection, player-class selection, or context-isolated design, implementation, investigation, or review work. Do not use for short questions, status checks, trivial edits, or a user-selected player.
+description: Use when the Ballclub manager must build a lineup from eligible, least-sufficient capacity profiles. Trigger for model or effort selection, player-class selection, or actual design, implementation, investigation, or review work. Do not use for short questions, status checks, or a user-selected player.
 ---
 
 # Building the Lineup
@@ -10,10 +10,10 @@ identities.
 
 ## Set the lineup
 
-1. Decide `MAIN` first. Keep work in the main thread when it is small, tightly
-   coupled to live conversation, or does not justify handoff overhead.
-   For a substantive retained task, announce `LINEUP: MANAGER` so the direct
-   manager appearance can be distinguished from routine conversation.
+1. Identify the phase that actually exists. Do not infer a phase from a verb in
+   the request or create missing phases to force a methodology chain.
+   Conversation, status, routing, integration, and acceptance verification
+   stay with the manager.
 2. Use only profiles exposed by the current harness. Do not invent aliases.
 3. Classify the required work boundary before comparing effort: full operation,
    bounded execution, support-only analysis, or independent coaching. Respect
@@ -28,13 +28,15 @@ identities.
    repeated hits without errors favor the least-sufficient lower effort. Ignore
    unscored or incomparable appearances, never let history relax an authority
    gate, and use the static risk rules when evidence is sparse.
-6. Choose the least sufficient eligible profile. Prefer lower effort for known,
-   reversible work; raise it for uncertainty, blast radius, or costly failure.
+6. Choose the least sufficient eligible profile. Every design, implementation,
+   or review phase requires a player appearance regardless of size. Prefer lower
+   effort for known, reversible work; raise it for uncertainty, blast radius,
+   or costly failure.
    Parallelism is a dispatch decision, not a profile property.
 7. Announce the lineup decision before delegation:
 
    ```text
-   LINEUP: MANAGER | <player-profile>
+   LINEUP: <player-profile>
    REASON: <one concrete sentence>
    PHASE: design | implementation | investigation | review
    ```
@@ -57,6 +59,7 @@ narrows it. The coach advises but never mutates or decides.
 ## Boundaries
 
 - A user-selected player wins.
+- If the harness cannot provide an eligible player, state that limitation; do
+  not silently substitute a manager appearance or invent a profile.
 - Do not implement routing as a global hook or force it on every message.
-- Do not delegate merely because a task contains the words design, implement,
-  or review.
+- Phase-call requirements do not make parallel execution mandatory.

@@ -9,7 +9,7 @@ roster_sync_context() {
   local result status security_drift
   if ! result="$(node "${plugin_root}/scripts/bootstrap-roster.mjs")"; then
     printf '%s' "ballclub:roster-sync-degraded
-Ballclub could not run its managed roster bootstrap. Continue with the manager only and invoke setup-ballclub if the user asks to diagnose or repair the roster."
+Ballclub could not run its managed roster bootstrap. Continue with any eligible roster profiles currently exposed by the harness. If a required design, implementation, or review phase has no eligible player, report the limitation instead of substituting manager execution. Invoke setup-ballclub if the user asks to diagnose or repair the roster."
     return
   fi
 
@@ -34,7 +34,7 @@ Ballclub preserved custom or conflicting agent files during automatic roster syn
       ;;
     *)
       printf '%s' "ballclub:roster-sync-degraded
-Ballclub could not complete its managed roster bootstrap. Continue with the manager only and invoke setup-ballclub if the user asks to diagnose or repair the roster."
+Ballclub could not complete its managed roster bootstrap. Continue with any eligible roster profiles currently exposed by the harness. If a required design, implementation, or review phase has no eligible player, report the limitation instead of substituting manager execution. Invoke setup-ballclub if the user asks to diagnose or repair the roster."
       ;;
   esac
 

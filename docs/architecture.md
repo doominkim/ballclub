@@ -4,19 +4,26 @@ Ballclub separates its baseball operating model from harness delivery.
 
 ## Core loop
 
-1. The manager keeps small or conversation-coupled work in the main thread.
-   Substantive manager-only execution becomes a manager appearance.
-2. For substantial delegation, `capacity-routing` classifies the required
-   operation boundary and builds an eligible, least-sufficient lineup.
+1. The manager identifies the phases that actually exist without manufacturing
+   a design-to-implementation-to-review chain. Conversation, status, routing,
+   integration, and acceptance verification remain manager work.
+2. Every design, implementation, or review phase calls an eligible player
+   regardless of size. `capacity-routing` classifies the operation boundary and
+   builds a least-sufficient lineup for that phase.
 3. A dispatch skill creates one or more bounded plate appearances with owned
    outcomes, constraints, completion criteria, and focused verification.
 4. `SubagentStop` records player and Coach appearances, while `Stop` records
    substantive manager-only appearances without double-counting delegated turns.
-5. The manager independently verifies the result and applies the official
-   score. Returned text or transcript content alone is not enough for a hit.
+5. The manager reruns or confirms predeclared acceptance checks and applies the
+   official score. Returned text or transcript content alone is not a hit.
 6. `score` aggregates daily, weekly, and monthly scorecards. Comparable verified
    history adjusts effort only inside the already-eligible class; sparse or
    unscored data leaves the static routing rules unchanged.
+
+When review is independent and Coach is available, its eligible player and
+Coach run concurrently. Coach is omitted only when unavailable or the reviews
+are not independent. Other phase appearances are sequential unless parallel
+dispatch independently applies.
 
 ```text
 game state -> lineup -> plate appearance -> record -> verify -> score -> report
@@ -44,6 +51,8 @@ reporting supported security-field drift separately instead of overwriting it.
 
 The session bootstrap activates `using-ballclub`. It still requires strict
 skill discovery, but invoking a skill does not activate unrelated methodology.
+Mandatory player calls apply to existing phases regardless of size, not absent
+phases or a global methodology chain.
 
 ## Skill catalog
 
@@ -60,8 +69,10 @@ skill discovery, but invoking a skill does not activate unrelated methodology.
 ## Scoring boundary
 
 Collection and scoring are deliberately separate. The hook writes an unscored
-appearance. Only manager-owned focused verification may turn it into a hit,
-walk, out, or error; transcript self-report alone cannot prove a hit. A home run
+appearance. Manager verification is limited to rerunning or confirming
+predeclared acceptance checks. Correctness, regression, security, design
+tradeoff, code quality, and diff judgment require a player review appearance;
+transcript self-report alone cannot prove a hit. A home run
 is a verified hit whose high-impact status was declared before the appearance
 and which required no rework. Walks and unscored appearances are excluded from
 at-bats.

@@ -14,9 +14,10 @@ manager work in its own section, and Coach calls separate.
 After integration, find the corresponding unscored event. Read its transcript
 to understand the assignment and claimed result, but never award `hit` or
 `homeRun` from transcript content or a returned response alone. Require fresh,
-manager-owned verification such as a rerun test, inspected diff/build result,
-or confirmed external state. `walk`, `out`, and `error` also require focused
-evidence; leave ambiguous results unscored.
+manager acceptance verification limited to rerunning or confirming predeclared
+acceptance checks. Diff judgment, correctness, regression, security, design
+tradeoff, and code quality require a separate player review appearance. `walk`,
+`out`, and `error` also require focused evidence; leave ambiguity unscored.
 
 Apply one result:
 
