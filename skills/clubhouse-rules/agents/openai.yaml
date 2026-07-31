@@ -1,0 +1,6 @@
+interface:
+  display_name: "Clubhouse Rules"
+  short_description: "Manage agents as a verified baseball lineup."
+  default_prompt: "Use $ballclub:clubhouse-rules to form an eligible lineup, send players to bounded plate appearances, and score only verified outcomes."
+policy:
+  allow_implicit_invocation: true

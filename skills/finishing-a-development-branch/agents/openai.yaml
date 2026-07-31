@@ -1,4 +1,0 @@
-interface:
-  display_name: "Finishing a Development Branch"
-  short_description: "Offer safe branch integration choices."
-  default_prompt: "Verify this branch and present safe merge, pull request, or keep-as-is choices without destructive cleanup."

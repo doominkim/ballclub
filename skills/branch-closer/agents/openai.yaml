@@ -1,0 +1,4 @@
+interface:
+  display_name: "Branch Closer"
+  short_description: "Offer safe branch integration choices."
+  default_prompt: "Use $ballclub:branch-closer to verify this branch and present safe merge, pull request, or keep-as-is choices without destructive cleanup."

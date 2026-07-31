@@ -1,0 +1,4 @@
+interface:
+  display_name: "Playbook Writing"
+  short_description: "Create concise and discoverable skills."
+  default_prompt: "Use $ballclub:playbook-writing to create or update this skill with precise triggers, minimal instructions, and realistic validation."

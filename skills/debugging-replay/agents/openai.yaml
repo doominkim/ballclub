@@ -1,0 +1,4 @@
+interface:
+  display_name: "Debugging Replay"
+  short_description: "Find root causes before proposing fixes."
+  default_prompt: "Use $ballclub:debugging-replay to reproduce this issue, gather evidence, identify the root cause, and verify the smallest fix."

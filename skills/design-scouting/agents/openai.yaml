@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Scouting"
+  short_description: "Explore ambiguous product and design decisions."
+  default_prompt: "Use $ballclub:design-scouting to clarify this ambiguous request and compare viable approaches before implementation."

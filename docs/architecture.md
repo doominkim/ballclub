@@ -8,7 +8,7 @@ Ballclub separates its baseball operating model from harness delivery.
    a design-to-implementation-to-review chain. Conversation, status, routing,
    integration, and acceptance verification remain manager work.
 2. Every design, implementation, or review phase calls an eligible player
-   regardless of size. `capacity-routing` classifies the operation boundary and
+   regardless of size. `set-lineup` classifies the operation boundary and
    builds a least-sufficient lineup for that phase.
 3. A dispatch skill creates one or more bounded plate appearances with owned
    outcomes, constraints, completion criteria, and focused verification.
@@ -16,7 +16,7 @@ Ballclub separates its baseball operating model from harness delivery.
    substantive manager-only appearances without double-counting delegated turns.
 5. The manager reruns or confirms predeclared acceptance checks and applies the
    official score. Returned text or transcript content alone is not a hit.
-6. `score` aggregates daily, weekly, and monthly scorecards. Comparable verified
+6. `scorebook` aggregates daily, weekly, and monthly scorecards. Comparable verified
    history adjusts effort only inside the already-eligible class; sparse or
    unscored data leaves the static routing rules unchanged.
 
@@ -53,21 +53,21 @@ external provider, so its read-only contract is behavioral rather than an OS
 sandbox guarantee. Setup keeps identity-compatible custom instructions while
 reporting supported security-field drift separately instead of overwriting it.
 
-The session bootstrap activates `using-ballclub`. It still requires strict
+The session bootstrap activates `clubhouse-rules`. It still requires strict
 skill discovery, but invoking a skill does not activate unrelated methodology.
 Mandatory player calls apply to existing phases regardless of size, not absent
 phases or a global methodology chain.
 
 ## Skill catalog
 
-- `using-ballclub`: manager, player, Coach, appearance, and scorebook rules
-- `capacity-routing`: lineup construction within allowed operation boundaries
-- `dispatching-parallel-agents`: independent or context-isolated batting order
-- `subagent-driven-development`: bounded implementation appearances
-- `score`: official score review and period reports
-- `setup-ballclub`: explicit roster inspection, conflict repair, and custom-profile recovery
-- `brainstorming`, `systematic-debugging`, `verification-before-completion`,
-  `finishing-a-development-branch`, `writing-skills`: independently triggered
+- `clubhouse-rules`: manager, player, Coach, appearance, and scorebook rules
+- `set-lineup`: lineup construction within allowed operation boundaries
+- `parallel-lineup`: independent or context-isolated batting order
+- `implementation-at-bat`: bounded implementation appearances
+- `scorebook`: official score review and period reports
+- `manage-roster`: explicit roster inspection, conflict repair, and custom-profile recovery
+- `design-scouting`, `debugging-replay`, `final-out-verification`,
+  `branch-closer`, `playbook-writing`: independently triggered
   development workflows
 
 ## Scoring boundary

@@ -203,11 +203,16 @@ Coach는 자문 호출로만 집계하고 선수 연봉, 팀 총연봉, 연봉 �
 외울 것은 이것뿐입니다.
 
 ```text
-$score d                 # 오늘
-$score w                 # 이번 주
-$score m                 # 이번 달
-$score d 2026-07-30      # 특정 날짜
-$score m 2026-07         # 특정 월
+Codex:       $ballclub:scorebook d                 # 오늘
+Claude Code: /ballclub:scorebook d
+Codex:       $ballclub:scorebook w                 # 이번 주
+Claude Code: /ballclub:scorebook w
+Codex:       $ballclub:scorebook m                 # 이번 달
+Claude Code: /ballclub:scorebook m
+Codex:       $ballclub:scorebook d 2026-07-30      # 특정 날짜
+Claude Code: /ballclub:scorebook d 2026-07-30
+Codex:       $ballclub:scorebook m 2026-07         # 특정 월
+Claude Code: /ballclub:scorebook m 2026-07
 ```
 
 자연어도 똑같이 동작합니다.
@@ -238,7 +243,7 @@ node scripts/score-appearance.mjs \
 
 ## Skill은 작전 카드이며 의식 절차가 아닙니다
 
-세션 bootstrap은 `using-ballclub`을 활성화하고, 적용 가능성이 있는 skill을 먼저
+세션 bootstrap은 `clubhouse-rules`를 활성화하고, 적용 가능성이 있는 skill을 먼저
 확인하게 합니다. 하지만 skill 하나를 불렀다고 TDD, 브레인스토밍, 계획, 리뷰,
 worktree가 줄줄이 강제되지는 않습니다. 각 workflow는 자기 trigger가 실제로 맞을
 때만 독립적으로 작동합니다. 선수 호출 의무도 실제로 존재하는 설계,
@@ -246,12 +251,38 @@ worktree가 줄줄이 강제되지는 않습니다. 각 workflow는 자기 trigg
 
 주요 구성은 다음과 같습니다.
 
-- `using-ballclub`: 감독, 선수, Coach, 타석, 공식 기록의 기본 규칙
-- `capacity-routing`: 작전 가능 범위와 least-sufficient effort로 라인업 구성
-- `dispatching-parallel-agents`: 독립 작업의 병렬 타순과 컨텍스트 격리
-- `subagent-driven-development`: 범위가 확정된 구현 타석의 소유권 관리
-- `score`: 미판정 출전 검토와 일봉·주봉·월봉 생성
-- 개발 workflow skills: 각 trigger에 따라 독립 실행
+- `clubhouse-rules`: 감독, 선수, Coach, 타석, 공식 기록의 기본 규칙
+- `set-lineup`: 작전 가능 범위와 least-sufficient effort로 라인업 구성
+- `parallel-lineup`: 독립 작업의 병렬 타순과 컨텍스트 격리
+- `implementation-at-bat`: 범위가 확정된 구현 타석의 소유권 관리
+- `scorebook`: 미판정 출전 검토와 일봉·주봉·월봉 생성
+- `manage-roster`: 명시적인 선수단 점검과 복구
+- `design-scouting`, `debugging-replay`, `final-out-verification`, `branch-closer`,
+  `playbook-writing`: 각 trigger에 따라 독립 실행
+
+### 0.9.0 skill 이름 마이그레이션
+
+`0.9.0`은 canonical skill 이름을 바꾸는 breaking update입니다. 중복 발동을 막기 위해
+구 이름 alias는 제공하지 않습니다. Ballclub을 update 또는 reinstall한 뒤 새 이름을
+사용하기 전에 반드시 새 세션을 시작하세요.
+
+| 0.9.0 이전 | 0.9.0 canonical 이름 |
+|---|---|
+| `using-ballclub` | `clubhouse-rules` |
+| `capacity-routing` | `set-lineup` |
+| `dispatching-parallel-agents` | `parallel-lineup` |
+| `subagent-driven-development` | `implementation-at-bat` |
+| `score` | `scorebook` |
+| `setup-ballclub` | `manage-roster` |
+| `brainstorming` | `design-scouting` |
+| `systematic-debugging` | `debugging-replay` |
+| `verification-before-completion` | `final-out-verification` |
+| `finishing-a-development-branch` | `branch-closer` |
+| `writing-skills` | `playbook-writing` |
+
+명시 호출 문법은 harness별로 다릅니다. Codex는 `$ballclub:<skill-name>`, Claude Code는
+`/ballclub:<skill-name>`을 사용합니다. 예를 들어 선수단 복구는 Codex에서
+`$ballclub:manage-roster`, Claude Code에서 `/ballclub:manage-roster`입니다.
 
 ### 설정 책임 경계
 
@@ -271,9 +302,10 @@ Ballclub 규칙을 전역 `AGENTS.md`에 그대로 복사하지 마세요. 같�
 Ballclub은 관리 대상 파일의 hash를 별도로 기록합니다. 이전에 Ballclub이 설치한
 파일은 새 버전으로 안전하게 갱신합니다. name·model·effort가 같고 지침만 다른 사용자
 파일은 `compatible`로 인정해 그대로 유지합니다. 실제 model 정의가 다르거나 출처를
-확인할 수 없는 파일은 `conflict`로 보존합니다. `$setup-ballclub`은 이런 충돌을
-진단·복구하는 명시적 도구이며, 강제 교체는 대상 파일별 승인 뒤에만 수행하고 기존
-파일을 먼저 백업합니다.
+확인할 수 없는 파일은 `conflict`로 보존합니다. Codex에서는
+`$ballclub:manage-roster`, Claude Code에서는 `/ballclub:manage-roster`를 충돌
+진단·복구에 사용합니다. 강제 교체는 대상 파일별 승인 뒤에만 수행하고 기존 파일을
+먼저 백업합니다.
 
 더 깊게 보려면 [아키텍처](docs/architecture.md),
 [런타임 흐름](docs/runtime-flow.md), [경기 모델](docs/game-model.md)을 참고하세요.

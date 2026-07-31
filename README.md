@@ -219,11 +219,16 @@ and excluded from salary and tokens per hit. Codex and Claude retain their raw u
 The short form is deliberately small:
 
 ```text
-$score d                 # today
-$score w                 # this week
-$score m                 # this month
-$score d 2026-07-30      # a specific day
-$score m 2026-07         # a specific month
+Codex:       $ballclub:scorebook d                 # today
+Claude Code: /ballclub:scorebook d
+Codex:       $ballclub:scorebook w                 # this week
+Claude Code: /ballclub:scorebook w
+Codex:       $ballclub:scorebook m                 # this month
+Claude Code: /ballclub:scorebook m
+Codex:       $ballclub:scorebook d 2026-07-30      # a specific day
+Claude Code: /ballclub:scorebook d 2026-07-30
+Codex:       $ballclub:scorebook m 2026-07         # a specific month
+Claude Code: /ballclub:scorebook m 2026-07
 ```
 
 Natural requests such as `Show today's scorecard`, `Show this week's team report`, and `Show this
@@ -253,22 +258,48 @@ node scripts/score-appearance.mjs \
 
 ## Skills are play cards, not a ritual chain
 
-The session bootstrap activates `using-ballclub`. During Ballclub routing, delegation, scoring, or
+The session bootstrap activates `clubhouse-rules`. During Ballclub routing, delegation, scoring, or
 appearance interpretation, every Ballclub skill with even a 1% chance of applying must be checked.
 Unrelated work uses the host's normal skill discovery instead of making Ballclub a global trigger.
-Invoking one skill does not automatically force TDD, brainstorming, planning, review, or a
+Invoking one skill does not automatically force TDD, design scouting, planning, review, or a
 worktree. Each workflow runs only when its own trigger applies. The phase-call rule applies only
 to design, implementation, or review phases that actually exist; it does not create
 those phases or a mandatory methodology chain.
 
 The core catalog is:
 
-- `using-ballclub`: manager, player, Coach, appearance, and scorebook rules
-- `capacity-routing`: boundary-first, least-sufficient lineup construction
-- `dispatching-parallel-agents`: independent batting order and context isolation
-- `subagent-driven-development`: ownership for already-bounded implementation appearances
-- `score`: pending review plus daily, weekly, and monthly scorecards
-- development workflow skills: independently triggered supporting methods
+- `clubhouse-rules`: manager, player, Coach, appearance, and scorebook rules
+- `set-lineup`: boundary-first, least-sufficient lineup construction
+- `parallel-lineup`: independent batting order and context isolation
+- `implementation-at-bat`: ownership for already-bounded implementation appearances
+- `scorebook`: pending review plus daily, weekly, and monthly scorecards
+- `manage-roster`: explicit roster inspection and repair
+- `design-scouting`, `debugging-replay`, `final-out-verification`, `branch-closer`,
+  and `playbook-writing`: independently triggered supporting methods
+
+### 0.9.0 skill name migration
+
+Version `0.9.0` is a breaking canonical rename. Old aliases are not shipped because duplicate
+skills can trigger twice. Update or reinstall Ballclub, then start a fresh session before using
+the new names.
+
+| Before 0.9.0 | 0.9.0 canonical name |
+|---|---|
+| `using-ballclub` | `clubhouse-rules` |
+| `capacity-routing` | `set-lineup` |
+| `dispatching-parallel-agents` | `parallel-lineup` |
+| `subagent-driven-development` | `implementation-at-bat` |
+| `score` | `scorebook` |
+| `setup-ballclub` | `manage-roster` |
+| `brainstorming` | `design-scouting` |
+| `systematic-debugging` | `debugging-replay` |
+| `verification-before-completion` | `final-out-verification` |
+| `finishing-a-development-branch` | `branch-closer` |
+| `writing-skills` | `playbook-writing` |
+
+Explicit invocation syntax is harness-specific: Codex uses `$ballclub:<skill-name>` and Claude
+Code uses `/ballclub:<skill-name>`. For example, roster repair is
+`$ballclub:manage-roster` in Codex and `/ballclub:manage-roster` in Claude Code.
 
 ### Configuration boundaries
 
@@ -287,7 +318,8 @@ differences in host configuration instead of repeating the entire operating mode
 
 Ballclub records hashes for managed profiles. It safely updates files previously installed by
 Ballclub, treats files with matching name, model, and effort as compatible while preserving their
-custom instructions, and keeps other unknown files as conflicts. `$setup-ballclub` is the explicit
+custom instructions, and keeps other unknown files as conflicts. Use
+`$ballclub:manage-roster` in Codex or `/ballclub:manage-roster` in Claude Code as the explicit
 diagnostic and repair surface for those conflicts. Force replacement requires approval for the
 named files and creates a backup first.
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implementation At Bat"
+  short_description: "Send focused players to implementation plate appearances."
+  default_prompt: "Use $ballclub:implementation-at-bat to send approved implementation work to focused players while the manager retains integration and official scoring."

@@ -7,7 +7,7 @@ update_hook="${repo_root}/hooks/session-update"
 wrapper="${repo_root}/hooks/run-hook.cmd"
 test_dir="$(mktemp -d)"
 trap 'rm -rf "$test_dir"' EXIT
-printf '%s\n' '{"version":"0.8.2"}' > "${test_dir}/remote.json"
+printf '%s\n' '{"version":"0.9.1"}' > "${test_dir}/remote.json"
 clean_home="${test_dir}/home"
 mkdir -p "$clean_home"
 
@@ -27,6 +27,10 @@ assert_json() {
       throw new Error(`${mode} output included a second context field`);
     }
     if (!content?.includes("ballclub:bootstrap")) throw new Error(`missing marker for ${mode}`);
+    if (!content.includes("The clubhouse-rules skill below is already active") ||
+        !content.includes("name: clubhouse-rules")) {
+      throw new Error(`missing canonical clubhouse-rules bootstrap for ${mode}`);
+    }
     if (!content.includes("For Ballclub routing, delegation, scoring, or appearance interpretation") ||
         !content.includes("installed Ballclub skill with even a 1% chance of applying")) {
       throw new Error(`missing scoped 1% skill invocation rule for ${mode}`);
@@ -97,8 +101,9 @@ assert_degraded_policy() {
   local mode="$1"
   local output="$2"
   local expected_reason="$3"
+  local expected_invocation="$4"
   node --input-type=module -e '
-    const [mode, source, expectedReason] = process.argv.slice(1);
+    const [mode, source, expectedReason, expectedInvocation] = process.argv.slice(1);
     const parsed = JSON.parse(source);
     const content = parsed.hookSpecificOutput?.additionalContext || "";
     if (!content.includes("ballclub:roster-sync-degraded")) throw new Error(`missing degraded marker for ${mode}`);
@@ -106,26 +111,38 @@ assert_degraded_policy() {
     if (!content.includes("Continue with any eligible roster profiles currently exposed by the harness")) {
       throw new Error(`degraded fallback discarded exposed roster for ${mode}`);
     }
+    if (!content.includes(expectedInvocation)) {
+      throw new Error(`degraded fallback lacks ${expectedInvocation} for ${mode}`);
+    }
+    const wrongInvocation = expectedInvocation.startsWith("$")
+      ? "/ballclub:manage-roster"
+      : "$ballclub:manage-roster";
+    if (content.includes(wrongInvocation)) {
+      throw new Error(`degraded fallback leaked wrong invocation ${wrongInvocation} for ${mode}`);
+    }
     if (!content.includes("report the limitation instead of substituting manager execution")) {
       throw new Error(`degraded fallback permits manager phase substitution for ${mode}`);
     }
     if (content.includes("Continue with the manager only")) {
       throw new Error(`legacy manager-only fallback leaked for ${mode}`);
     }
-  ' "$mode" "$output" "$expected_reason"
+  ' "$mode" "$output" "$expected_reason" "$expected_invocation"
 }
 
 degraded_root="${test_dir}/degraded-plugin"
-mkdir -p "$degraded_root/hooks" "$degraded_root/scripts" "$degraded_root/skills/using-ballclub"
+mkdir -p "$degraded_root/hooks" "$degraded_root/scripts" "$degraded_root/skills/clubhouse-rules"
 cp "$hook" "$degraded_root/hooks/session-start"
-cp "$repo_root/skills/using-ballclub/SKILL.md" "$degraded_root/skills/using-ballclub/SKILL.md"
+cp "$repo_root/skills/clubhouse-rules/SKILL.md" "$degraded_root/skills/clubhouse-rules/SKILL.md"
 printf '%s\n' 'process.exit(1);' > "$degraded_root/scripts/bootstrap-roster.mjs"
 sync_failure_output="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$degraded_root" bash "$degraded_root/hooks/session-start")"
-assert_degraded_policy sync-failure "$sync_failure_output" "could not run its managed roster bootstrap"
+assert_degraded_policy sync-failure "$sync_failure_output" "could not run its managed roster bootstrap" '$ballclub:manage-roster'
+
+claude_sync_failure_output="$(env -i PATH="${PATH:-}" HOME="$clean_home" CLAUDE_PLUGIN_ROOT="$degraded_root" bash "$degraded_root/hooks/session-start")"
+assert_degraded_policy claude-sync-failure "$claude_sync_failure_output" "could not run its managed roster bootstrap" '/ballclub:manage-roster'
 
 printf '%s\n' 'process.stdout.write(JSON.stringify({status:"degraded"}));' > "$degraded_root/scripts/bootstrap-roster.mjs"
 degraded_status_output="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$degraded_root" bash "$degraded_root/hooks/session-start")"
-assert_degraded_policy degraded-status "$degraded_status_output" "could not complete its managed roster bootstrap"
+assert_degraded_policy degraded-status "$degraded_status_output" "could not complete its managed roster bootstrap" '$ballclub:manage-roster'
 
 mkdir -p "$clean_home/.codex/agents" "$clean_home/.claude/agents"
 for source_file in "$repo_root"/agents/codex/*.toml; do
@@ -150,6 +167,9 @@ node --input-type=module -e '
   if (!content.includes("ballclub:roster-security-drift")) throw new Error("missing security drift marker");
   if (!content.includes("1setter.md (disallowedTools)")) throw new Error("missing security drift profile and fields");
   if (!content.includes("Do not overwrite automatically")) throw new Error("missing security drift preservation rule");
+  if (!content.includes("/ballclub:manage-roster") || content.includes("$ballclub:manage-roster")) {
+    throw new Error("Claude security drift used the wrong manage-roster invocation");
+  }
 ' "$security_drift_claude"
 cp "$repo_root/rosters/claude/1setter.md" "$clean_home/.claude/agents/1setter.md"
 
@@ -157,6 +177,8 @@ sed -i.bak 's/model = "gpt-5.6-sol"/model = "gpt-5.6-terra"/' "$clean_home/.code
 conflict_generic="$(env -i PATH="${PATH:-}" HOME="$clean_home" PLUGIN_ROOT="$repo_root" bash "$hook")"
 assert_json generic "$conflict_generic" conflicts
 [[ "$conflict_generic" == *"1setter.toml"* ]]
+[[ "$conflict_generic" == *'$ballclub:manage-roster'* ]]
+[[ "$conflict_generic" != *'/ballclub:manage-roster'* ]]
 rg -q 'model = "gpt-5.6-terra"' "$clean_home/.codex/agents/1setter.toml"
 
 broken_root="${test_dir}/broken-plugin"
@@ -182,7 +204,7 @@ node --input-type=module -e '
   if (parsed.hookSpecificOutput || parsed.additional_context) throw new Error("generic update output mixed context shapes");
   const content = parsed.additionalContext;
   if (!content?.includes("ballclub:update-available")) throw new Error("missing update marker");
-  if (!content.includes("current_version=0.8.1") || !content.includes("latest_version=0.8.2")) {
+  if (!content.includes("current_version=0.9.0") || !content.includes("latest_version=0.9.1")) {
     throw new Error("missing update versions");
   }
   if (!content.includes("natural English") || !content.includes("current conversational context and tone")) {

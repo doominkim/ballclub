@@ -3,13 +3,22 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 plugin_root="$(cd "${script_dir}/.." && pwd)"
-skill_path="${plugin_root}/skills/using-ballclub/SKILL.md"
+skill_path="${plugin_root}/skills/clubhouse-rules/SKILL.md"
+
+manage_roster_invocation() {
+  if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]]; then
+    printf '%s' '/ballclub:manage-roster'
+  else
+    printf '%s' '$ballclub:manage-roster'
+  fi
+}
 
 roster_sync_context() {
-  local result status security_drift
+  local result status security_drift repair_invocation
+  repair_invocation="$(manage_roster_invocation)"
   if ! result="$(node "${plugin_root}/scripts/bootstrap-roster.mjs")"; then
     printf '%s' "ballclub:roster-sync-degraded
-Ballclub could not run its managed roster bootstrap. Continue with any eligible roster profiles currently exposed by the harness. If a required design, implementation, or review phase has no eligible player, report the limitation instead of substituting manager execution. Invoke setup-ballclub if the user asks to diagnose or repair the roster."
+Ballclub could not run its managed roster bootstrap. Continue with any eligible roster profiles currently exposed by the harness. If a required design, implementation, or review phase has no eligible player, report the limitation instead of substituting manager execution. Invoke ${repair_invocation} if the user asks to diagnose or repair the roster."
     return
   fi
 
@@ -28,20 +37,20 @@ Ballclub synchronized its bundled managed roster during SessionStart. The curren
       local conflicts
       conflicts="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write((value.conflicts || []).join(", "))' "$result" 2>/dev/null || true)"
       printf '%s' "ballclub:roster-conflicts
-Ballclub preserved custom or conflicting agent files during automatic roster sync: ${conflicts}. Continue without overwriting them. Invoke setup-ballclub only when the user asks to inspect or repair these conflicts; forced replacement still requires explicit approval."
+Ballclub preserved custom or conflicting agent files during automatic roster sync: ${conflicts}. Continue without overwriting them. Invoke ${repair_invocation} only when the user asks to inspect or repair these conflicts; forced replacement still requires explicit approval."
       ;;
     current)
       ;;
     *)
       printf '%s' "ballclub:roster-sync-degraded
-Ballclub could not complete its managed roster bootstrap. Continue with any eligible roster profiles currently exposed by the harness. If a required design, implementation, or review phase has no eligible player, report the limitation instead of substituting manager execution. Invoke setup-ballclub if the user asks to diagnose or repair the roster."
+Ballclub could not complete its managed roster bootstrap. Continue with any eligible roster profiles currently exposed by the harness. If a required design, implementation, or review phase has no eligible player, report the limitation instead of substituting manager execution. Invoke ${repair_invocation} if the user asks to diagnose or repair the roster."
       ;;
   esac
 
   if [[ -n "$security_drift" ]]; then
     printf '%s' "
 ballclub:roster-security-drift
-Ballclub preserved compatible custom agent instructions but detected drift in supported security fields: ${security_drift}. Do not overwrite automatically. Invoke setup-ballclub when the user asks to inspect or repair it."
+Ballclub preserved compatible custom agent instructions but detected drift in supported security fields: ${security_drift}. Do not overwrite automatically. Invoke ${repair_invocation} when the user asks to inspect or repair it."
   fi
 }
 
@@ -65,11 +74,11 @@ emit_context() {
 
 skill_content=""
 if [[ ! -r "$skill_path" ]] || ! skill_content="$(cat "$skill_path" 2>/dev/null)" || [[ -z "$skill_content" ]]; then
-  emit_context $'ballclub:bootstrap-unavailable\nThe using-ballclub skill could not be read. Continue without the SessionStart bootstrap and use native skill discovery.'
+  emit_context $'ballclub:bootstrap-unavailable\nThe clubhouse-rules skill could not be read. Continue without the SessionStart bootstrap and use native skill discovery.'
   exit 0
 fi
 
 bootstrap_marker="ballclub:bootstrap"
 sync_context="$(roster_sync_context)"
-printf -v bootstrap '<BALLCLUB>\n%s\n\nThe using-ballclub skill below is already active for this session. Do not load it again. For Ballclub routing, delegation, scoring, or appearance interpretation, invoke any installed Ballclub skill with even a 1%% chance of applying. For unrelated work, use normal host skill discovery instead of treating Ballclub as a global trigger. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n\n%s\n</BALLCLUB>' "$bootstrap_marker" "$sync_context" "$skill_content"
+printf -v bootstrap '<BALLCLUB>\n%s\n\nThe clubhouse-rules skill below is already active for this session. Do not load it again. For Ballclub routing, delegation, scoring, or appearance interpretation, invoke any installed Ballclub skill with even a 1%% chance of applying. For unrelated work, use normal host skill discovery instead of treating Ballclub as a global trigger. Invoking one skill does not automatically activate TDD, design, planning, worktrees, review, or any other skill. User instructions and repository rules take precedence.\n\n%s\n\n%s\n</BALLCLUB>' "$bootstrap_marker" "$sync_context" "$skill_content"
 emit_context "$bootstrap"

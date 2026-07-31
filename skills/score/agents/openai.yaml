@@ -1,4 +1,0 @@
-interface:
-  display_name: "Scorecard"
-  short_description: "Generate daily, weekly, and monthly team scorecards."
-  default_prompt: "Use $score to generate the current daily player report."

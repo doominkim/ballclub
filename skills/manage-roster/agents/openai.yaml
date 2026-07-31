@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manage Roster"
+  short_description: "Inspect or repair the managed Ballclub roster"
+  default_prompt: "Use $ballclub:manage-roster to inspect automatic roster synchronization and safely repair any missing, stale, or conflicting profiles."

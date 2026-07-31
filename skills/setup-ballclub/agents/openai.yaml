@@ -1,4 +1,0 @@
-interface:
-  display_name: "Set Up Ballclub"
-  short_description: "Inspect or repair the managed Ballclub roster"
-  default_prompt: "Use $setup-ballclub to inspect automatic roster synchronization and safely repair any missing, stale, or conflicting profiles."

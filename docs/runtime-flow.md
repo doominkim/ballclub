@@ -2,7 +2,7 @@
 
 ## Session bootstrap
 
-`hooks/session-start` injects `using-ballclub` at startup, clear, and compact.
+`hooks/session-start` injects `clubhouse-rules` at startup, clear, and compact.
 The bootstrap establishes the manager, player, Coach, lineup, plate appearance,
 and scorebook boundaries. It does not force unrelated development workflows or
 manufacture a methodology chain. It does require an eligible player when work
@@ -26,7 +26,7 @@ bootstrap installs Fable setters, Opus batters, Sonnet bench players, and
 external GPT-5.6 Sol coaches from `rosters/claude/` without asking for a roster
 choice.
 
-`setup-ballclub` is reserved for explicit inspection, conflict repair, and
+`manage-roster` is reserved for explicit inspection, conflict repair, and
 custom roster work. Forced replacement names the affected files, requires
 approval, and creates a backup before replacement.
 
@@ -70,7 +70,7 @@ applies official results while rejecting Coach scoring and out-of-root paths.
 period. Reports include appearances, at-bats, hits, average, home runs, errors,
 player salary, direct-manager scoring and salary, pending reviews, player
 rankings, Coach call counts, and runtime profile mismatches. Before a comparable
-future assignment, `capacity-routing` uses verified history to adjust effort
+future assignment, `set-lineup` uses verified history to adjust effort
 inside the eligible class and falls back to static rules when evidence is
 insufficient.
 

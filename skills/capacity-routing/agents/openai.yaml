@@ -1,4 +1,0 @@
-interface:
-  display_name: "Building the Lineup"
-  short_description: "Choose an eligible player for the next plate appearance."
-  default_prompt: "Classify the required operation boundary, then put the least-sufficient eligible player in the lineup."

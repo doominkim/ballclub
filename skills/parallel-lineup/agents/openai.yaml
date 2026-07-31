@@ -1,0 +1,4 @@
+interface:
+  display_name: "Parallel Lineup"
+  short_description: "Set independent plate appearances in parallel."
+  default_prompt: "Use $ballclub:parallel-lineup to send multiple players to bat only for independent work or context isolation, then return compact evidence for official scoring."

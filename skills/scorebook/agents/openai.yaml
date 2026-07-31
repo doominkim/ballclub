@@ -1,0 +1,4 @@
+interface:
+  display_name: "Scorebook"
+  short_description: "Generate daily, weekly, and monthly team scorecards."
+  default_prompt: "Use $ballclub:scorebook to generate the current daily player report."
