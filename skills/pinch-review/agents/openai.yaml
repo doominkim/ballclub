@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pinch Review"
+  short_description: "Bench a specialist to break a ported or high-risk change, not confirm it."
+  default_prompt: "Use $ballclub:pinch-review to adversarially review a migration, port, refactor, or irreversible / money-touching change — attack the hidden assumptions with a cross-model pass instead of confirming equivalence."
